@@ -1,42 +1,45 @@
 #include "perifericos.h"
 #include "fonte.h"
 #include <stdio.h>
+#include "personagem.h"
+#include "sprites/sprites.h"
 
-int main(void) {
+// --- VARIAVEIS DE TESTE ---
+Jogador player;
+int camera_x = 0; // Camera estatica no topo esquerdo para o teste
+int camera_y = 0;
+
+int main() {
+    // 1. Inicializa os componentes de video/teclado (mmap na placa,
+    // janela SDL no simulador -- depende de qual perifericos.c foi linkado)
     if (hw_init() != 0) {
-        printf("Falha ao inicializar\n");
+        printf("Falha ao inicializar hardware\n");
         return 1;
     }
-
     inicializar_double_buffering();
 
-    int x = 160, y = 120;
-    int rodando = 1;
+    // 2. Inicializa o nosso personagem
+    start_player(&player, 160, 120, BAIXO); // centralizado, olhando pra frente
+    player.movendo = 1; // deixa em 1 pra testar a animacao de andar
 
-    while (rodando) {
-        unsigned char tecla = keyboard_input_filtrado();
+    printf("Iniciando teste do sprite do Red...\n");
 
-        // Move um quadrado com as setas ou WASD -- só pra testar o teclado
-        switch (tecla) {
-            case 0x75: case 0x1D: y -= 4; break; // cima / W
-            case 0x72: case 0x1B: y += 4; break; // baixo / S
-            case 0x6B: case 0x1C: x -= 4; break; // esquerda / A
-            case 0x74: case 0x23: x += 4; break; // direita / D
-            case 0x76: rodando = 0; break;        // ESC sai
-            default: break;
-        }
-
+    // 3. Loop Principal do Jogo
+    while (1) {
+        // 4. Limpa a tela antes de desenhar o frame novo
         clear();
-        desenhar_texto(90, 110, "ola meu lindo potoxitos s2");
-        desenhar_texto(80, 118, "   TE AMO!                ");
 
-        // desenha um quadrado 10x10 na posição atual
-        for (int dy = 0; dy < 10; dy++)
-            for (int dx = 0; dx < 10; dx++)
-                write_pixel(x + dx, y + dy, VERDE_GRAMA);
+        // 5. Atualiza a logica da animacao
+        atualizar_animacao_jogador(&player);
 
+        // 6. Desenha o jogador na tela passando a camera
+        desenhar_jogador(camera_x, camera_y, &player);
+
+        // 7. Mostra o frame na tela e processa eventos de teclado/janela
         inverter_buffers();
-        delay(16); // ~60 fps
+
+        // 8. Controla os FPS (~60fps)
+        delay(16);
     }
 
     hw_cleanup();
