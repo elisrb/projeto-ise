@@ -23,7 +23,7 @@ extern const unsigned short PROF_ESQ2[16][16];
 extern const unsigned short PROF_DIR1[16][16];
 extern const unsigned short PROF_DIR2[16][16];
 
-extern const unsigned short (*SPRITES_RED[4][3])[16];
-extern const unsigned short (*SPRITES_PROF[4][3])[16];
+extern const unsigned short (*SPRITES_RED[4][4])[16];
+extern const unsigned short (*SPRITES_PROF[4][4])[16];
 
 #endif // SPRITES_H
