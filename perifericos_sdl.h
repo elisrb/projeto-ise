@@ -1,5 +1,5 @@
-#ifndef PERIFERICOS_H
-#define PERIFERICOS_H
+#ifndef PERIFERICOS_SDL_H
+#define PERIFERICOS_SDL_H
 
 #include <stdint.h>
 
@@ -47,12 +47,13 @@ void write_text(int x, int y, char *text);
 
 /* ===================== Teclado PS/2 (emulado) ===================== */
 
-/* Retorna o scancode PS/2 mapeado da última tecla pressionada (0 se
- * não houver nada novo). Consome o dado ao ler. */
+/* Retorna o scancode PS/2 de uma tecla pressionada AGORA (reflete o
+ * estado atual do teclado -- não consome, não depende de "toque novo").
+ * Chamar todo frame dá movimento contínuo; 0 se nada estiver ativo. */
 unsigned char keyboard_input(void);
 
-/* Mantido por compatibilidade de nome com o resto do código -- não faz
- * filtragem de break code/prefixo estendido (ver comentário no .c). */
+/* Mantido por compatibilidade de nome com o resto do código -- agora é
+ * só um alias de keyboard_input(). */
 unsigned char keyboard_input_filtrado(void);
 
 /* ===================== Timing ===================== */
@@ -60,4 +61,4 @@ unsigned char keyboard_input_filtrado(void);
 /* Espera 'ms' milissegundos via SDL_Delay. */
 void delay(uint32_t ms);
 
-#endif /* PERIFERICOS_H */
+#endif /* PERIFERICOS_SDL_H */

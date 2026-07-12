@@ -24,10 +24,31 @@ static uint16_t pixel_buffer_2[ALTURA_VGA][LARGURA_VGA];
 static uint16_t (*vga_desenho)[LARGURA_VGA] = pixel_buffer_1;
 static uint16_t (*vga_exibicao)[LARGURA_VGA] = pixel_buffer_2;
 
-// Registrador virtual simples para o teclado PS/2
-static volatile int ps2_virtual_reg = 0;
+// Estado continuo de teclas -- indexado pelo scancode PS/2 que a gente
+// mesmo definiu (0x00 a 0xFF). 1 = pressionada agora, 0 = solta.
+static int tecla_pressionada[256] = {0};
 
 short SISTEM_STANDARD_COLOR = COR_PRETO;
+
+/* Mapeamento SDL_Keycode -> scancode PS/2 Set 2 (os MESMOS codigos que
+ * a DE1-SoC gera de verdade, pro jogo se comportar igual nos dois
+ * ambientes). Usado tanto pro evento de tecla pressionada quanto solta. */
+static unsigned char mapear_scancode(SDL_Keycode sym) {
+    switch (sym) {
+        case SDLK_UP:     return 0x75;
+        case SDLK_DOWN:   return 0x72;
+        case SDLK_LEFT:   return 0x6B;
+        case SDLK_RIGHT:  return 0x74;
+        case SDLK_SPACE:  return 0x29;
+        case SDLK_RETURN: return 0x5A;
+        case SDLK_ESCAPE: return 0x76;
+        case SDLK_w:      return 0x1D;
+        case SDLK_a:      return 0x1C;
+        case SDLK_s:      return 0x1B;
+        case SDLK_d:      return 0x23;
+        default:          return 0x00;
+    }
+}
 
 /* ===================== Funções de Inicialização e Controle ===================== */
 
@@ -99,28 +120,18 @@ static void atualizar_simulador(void) {
 
         // Ignora auto-repeat do SO (tecla segurada gerando SDL_KEYDOWN repetido)
         if (event.type == SDL_KEYDOWN && !event.key.repeat) {
-            unsigned char scancode = 0;
-
-            // Mapeamento pros codigos PS/2 Set 2 reais -- os MESMOS que a
-            // DE1-SoC gera de verdade, pra jogo se comportar igual nos dois
-            switch (event.key.keysym.sym) {
-                case SDLK_UP:     scancode = 0x75; break;
-                case SDLK_DOWN:   scancode = 0x72; break;
-                case SDLK_LEFT:   scancode = 0x6B; break;
-                case SDLK_RIGHT:  scancode = 0x74; break;
-                case SDLK_SPACE:  scancode = 0x29; break;
-                case SDLK_RETURN: scancode = 0x5A; break;
-                case SDLK_ESCAPE: scancode = 0x76; break;
-                case SDLK_w:      scancode = 0x1D; break;
-                case SDLK_a:      scancode = 0x1C; break;
-                case SDLK_s:      scancode = 0x1B; break;
-                case SDLK_d:      scancode = 0x23; break;
-                default: break;
-            }
-
+            unsigned char scancode = mapear_scancode(event.key.keysym.sym);
             if (scancode != 0) {
-                // Bit 15 em 1 indica dado pronto (simulando o comportamento do registrador da DE1-SoC)
-                ps2_virtual_reg = 0x8000 | scancode;
+                tecla_pressionada[scancode] = 1;
+            }
+        }
+
+        // Quando a tecla eh solta, zera o estado -- e o que permite
+        // keyboard_input() saber que a tecla nao esta mais ativa
+        if (event.type == SDL_KEYUP) {
+            unsigned char scancode = mapear_scancode(event.key.keysym.sym);
+            if (scancode != 0) {
+                tecla_pressionada[scancode] = 0;
             }
         }
     }
@@ -179,20 +190,36 @@ void write_text(int x, int y, char *text) {
 
 /* ===================== Teclado PS/2 Emulado ===================== */
 
+// Devolve o codigo PS/2 de uma tecla pressionada AGORA (nao um evento de
+// toque unico) -- consulta o array de estado continuo, atualizado a cada
+// SDL_KEYDOWN/SDL_KEYUP em atualizar_simulador(). Isso permite tanto
+// movimento continuo (chamar todo frame, personagem anda enquanto segura)
+// quanto uso posterior pra outras teclas (menu, pause, etc), sem precisar
+// de uma segunda funcao. Prioriza nesta ordem: cima, baixo, esquerda,
+// direita, espaco, enter, esc. Devolve 0 se nenhuma estiver ativa.
 unsigned char keyboard_input(void) {
-    int dados = ps2_virtual_reg;
-    if (dados & 0x8000) {
-        ps2_virtual_reg = 0; // Consome o dado lido (Zera o bit de pronto)
-        return (unsigned char)(dados & 0xFF);
+    static const unsigned char ordem_prioridade[] = {
+        0x75, 0x1D, // cima (seta / W)
+        0x72, 0x1B, // baixo (seta / S)
+        0x6B, 0x1C, // esquerda (seta / A)
+        0x74, 0x23, // direita (seta / D)
+        0x29,       // espaco
+        0x5A,       // enter
+        0x76,       // esc
+    };
+
+    for (size_t i = 0; i < sizeof(ordem_prioridade); i++) {
+        unsigned char codigo = ordem_prioridade[i];
+        if (tecla_pressionada[codigo]) {
+            return codigo;
+        }
     }
     return 0;
 }
 
-// OBS: diferente da versão que roda na DE1-SoC de verdade, esta função NÃO
-// faz filtragem de break code (0xF0) nem prefixo estendido (0xE0) -- o
-// mapeamento de teclas já devolve o código final direto no switch acima,
-// então não existe stream bruto pra filtrar aqui. O nome foi mantido só
-// por compatibilidade com o resto do código que já chama essa função.
+// Mantido por compatibilidade de nome com o resto do codigo -- agora e
+// so um alias de keyboard_input(), ja que a propria keyboard_input() ja
+// reflete o estado atual do teclado.
 unsigned char keyboard_input_filtrado(void) {
     return keyboard_input();
 }
