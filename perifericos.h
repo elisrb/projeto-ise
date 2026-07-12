@@ -19,7 +19,7 @@
 #define AMA2        0xFFE0
 #define PT_E        0x0000
 #define ROSA        0xFBAE
-#define F_TR        -1   /* cor "transparente", write_pixel ignora */
+#define F_TR        0xFBE5   /* cor "transparente", write_pixel ignora */
 
 /* Cor padrão usada pelo clear() */
 extern short SISTEM_STANDARD_COLOR;
