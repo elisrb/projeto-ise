@@ -16,7 +16,7 @@ void atualizar_animacao_jogador(Jogador *player) {
         player->timer_animacao++;
         if (player->timer_animacao >= 10) {
             player->timer_animacao = 0;
-            player->frame_atual = (player->frame_atual + 1) % 3;
+            player->frame_atual = (player->frame_atual + 1) % 4;
         }
     } else {
         player->frame_atual = 1;
