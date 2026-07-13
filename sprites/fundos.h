@@ -1,9 +1,11 @@
 #ifndef FUNDOS_H
 #define FUNDOS_H
+#include "colisao.h"
 
 struct Cenario {
     int altura;
     int largura;
+    const enum Terreno *mapa_colisao;
 };
 
 extern struct Cenario rota1;

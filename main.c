@@ -6,7 +6,6 @@
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
 
-
 int main() {
     Jogador player;
     // 1. Inicializa os componentes de vídeo/teclado (mmap na placa ou janela SDL no simulador)
@@ -18,53 +17,56 @@ int main() {
     // Inicializa o sistema de double buffering da VGA
     inicializar_double_buffering();
 
-    // 2. Configura as dimensões dos cenários (caso não estejam pré-configuradas no fundos.c)
-    // Se o seu fundos.c já define esses tamanhos, você pode remover estas linhas:
+    // 2. Configura as dimensões E AS MATRIZES DE COLISÃO dos cenários
     cidade.largura = 320; 
     cidade.altura = 288;
+    cidade.mapa_colisao = (const enum Terreno *)cidade_colisao; // <-- VINCULA A COLISÃO DA CIDADE
+
     rota1.largura = 320;  
     rota1.altura = 576;
-    // (Adicione as dimensões dos outros cenários se for testá-los)
+    rota1.mapa_colisao = (const enum Terreno *)rota1_colisao;   // <-- VINCULA A COLISÃO DA ROTA 1
+    
+    // Se for testar as casas ou lab depois, basta fazer o mesmo:
+    // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const enum Terreno *)casa1_colisao;
 
     // 3. Carrega o cenário inicial (Cidade de Pallet)
     carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
 
     // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
-    // Como a cidade tem 320x288, iniciar em (160, 120) é perfeito
-    start_player(&player, 160, 120, BAIXO);
+    start_player(&player, 26, 47, BAIXO);
 
-    printf("Teste do motor de jogo iniciado com sucesso!\n");
+    printf("Teste do motor de jogo com COLISÕES ativas!\n");
     printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
 
     // 5. Loop Principal do Jogo
     while (1) {
-        // A. Limpa o buffer dos comandos de desenho (opcional, já que o cenário cobre a tela toda)
+        // A. Limpa o buffer dos comandos de desenho
         clear();
 
-        // B. Lê a tecla pressionada e processa o movimento do jogador (respeitando os limites do mapa)
+        // B. Lê a tecla e processa o movimento (agora checando colisão internamente no personagem.c)
         unsigned char tecla = keyboard_input_filtrado();
         mover_jogador(&player, tecla);
 
-        // C. Atualiza a posição da câmera para seguir o jogador e travar nas bordas do mapa
+        // C. Atualiza a posição da câmera para seguir o jogador de acordo com o tamanho dinâmico (160x144 ou 320x240)
         atualizar_camera(player.x, player.y);
 
         // D. Atualiza a lógica de animação das pernas do Red
         atualizar_animacao_jogador(&player);
 
-        // E. Desenha a parte visível do cenário de fundo baseado na posição atual da câmera
+        // E. Desenha a parte visível do cenário de fundo baseado na câmera e na moldura centralizada
         desenhar_cenario();
 
-        // F. Desenha o jogador por cima do cenário (passando a câmera calculada)
+        // F. Desenha o jogador por cima do cenário aplicando o posicionamento correto da janela
         desenhar_jogador(camera_x, camera_y, &player);
 
-        // G. Realiza a troca dos buffers da VGA para mostrar o frame renderizado sem screen tearing
+        // G. Realiza a troca dos buffers da VGA sem screen tearing
         inverter_buffers();
 
         // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
         delay(16);
     }
 
-    // Código de encerramento caso o loop termine (boa prática de segurança)
+    // Código de encerramento caso o loop termine
     hw_cleanup();
     return 0;
 }
