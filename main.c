@@ -39,9 +39,9 @@ int main() {
     printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
 
     // 5. Loop Principal do Jogo
+    clear();
     while (1) {
         // A. Limpa o buffer dos comandos de desenho
-        clear();
 
         // B. Lê a tecla e processa o movimento (agora checando colisão internamente no personagem.c)
         unsigned char tecla = keyboard_input_filtrado();
@@ -63,7 +63,7 @@ int main() {
         inverter_buffers();
 
         // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
-        delay(32);
+        delay(16);
     }
 
     // Código de encerramento caso o loop termine
