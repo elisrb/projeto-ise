@@ -63,7 +63,7 @@ int main() {
         inverter_buffers();
 
         // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
-        delay(16);
+        delay(32);
     }
 
     // Código de encerramento caso o loop termine
