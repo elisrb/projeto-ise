@@ -1,12 +1,6 @@
 #include "colisao.h"
 #include "fundos.h"
 
-enum Terreno {
-    LIVRE,
-    OBSTACULO,
-    GRAMA
-};
-
 /*
 inicializar de acordo com fundos.h
 
