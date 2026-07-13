@@ -5,6 +5,7 @@
 #include <sys/mman.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 /* ===================== Endereços físicos ===================== */
 #define VGA_PIXEL_BUFFER   0xC8000000
@@ -20,6 +21,18 @@
 #define SDRAM_SPAN         0x08000000  /* mapeia C0000000 até CFFFFFFF de uma vez */
 #define CHAR_SPAN          0x00001000
 
+/* ===================== Timer privado A9 (Cortex-A9 MPCore) ===================== */
+
+#define A9_TIMER_BASE   0xFFFEC600
+#define A9_TIMER_SPAN   0x20
+#define A9_TIMER_CLOCK_HZ 200000000UL
+
+/* Offsets dos registradores, em unidades de 'int' (4 bytes) */
+#define A9_TIMER_LOAD    0
+#define A9_TIMER_COUNTER 1
+#define A9_TIMER_CONTROL 2
+#define A9_TIMER_STATUS  3
+
 /* ===================== Estado interno ===================== */
 static int dev_mem_fd = -1;
 
@@ -30,6 +43,9 @@ static void *lw_bridge_map = NULL;
 static volatile short (*vga_char)[128];
 static volatile int    *vga_pixel_ctrl;
 static volatile int    *ps2_reg;
+
+static void *a9_timer_map = NULL;
+static volatile unsigned int *a9_timer = NULL;
 
 short SISTEM_STANDARD_COLOR = COR_PRETO;
 
@@ -59,8 +75,9 @@ int hw_init(void) {
     sdram_map = map_physical(BUFFER_BACK_SDRAM, SDRAM_SPAN);
     char_map  = map_physical(FPGA_CHAR_BASE, CHAR_SPAN);
     lw_bridge_map = map_physical(LW_BRIDGE_BASE, LW_BRIDGE_SPAN);
+    a9_timer_map  = map_physical(A9_TIMER_BASE, A9_TIMER_SPAN);
 
-    if (!sdram_map || !char_map || !lw_bridge_map) {
+    if (!sdram_map || !char_map || !lw_bridge_map || !a9_timer_map) {
         perror("hw_init: mmap");
         hw_cleanup();
         return -1;
@@ -69,6 +86,7 @@ int hw_init(void) {
     vga_char = (volatile short (*)[128]) char_map;
     vga_pixel_ctrl = (volatile int *) ((char *)lw_bridge_map + VGA_PIXEL_CTRL_OFF);
     ps2_reg = (volatile int *) ((char *)lw_bridge_map + PS2_KEYBOARD_OFF);
+    a9_timer = (volatile unsigned int *) a9_timer_map;
 
     /* vga_desenho começa apontando pro buffer de front até o primeiro swap */
     vga_desenho = (volatile short (*)[512]) sdram_map;
@@ -80,9 +98,11 @@ void hw_cleanup(void) {
     if (sdram_map)     munmap(sdram_map, SDRAM_SPAN);
     if (char_map)       munmap(char_map, CHAR_SPAN);
     if (lw_bridge_map)  munmap(lw_bridge_map, LW_BRIDGE_SPAN);
+    if (a9_timer_map)   munmap(a9_timer_map, A9_TIMER_SPAN);
     if (dev_mem_fd >= 0) close(dev_mem_fd);
 
-    sdram_map = char_map = lw_bridge_map = NULL;
+    sdram_map = char_map = lw_bridge_map = a9_timer_map = NULL;
+    a9_timer = NULL;
     dev_mem_fd = -1;
 }
 
@@ -160,7 +180,29 @@ unsigned char keyboard_input_filtrado(void) {
 
 /* ===================== Timing ===================== */
 
+/* Espera 'ms' milissegundos usando o timer privado do A9, em busy-wait. */
 void delay(uint32_t ms) {
-    if (ms == 0) return;
-    usleep((useconds_t)ms * 1000);
+    if (ms == 0 || a9_timer == NULL) return;
+
+    unsigned long long ciclos = ((unsigned long long)A9_TIMER_CLOCK_HZ * ms) / 1000ULL;
+
+    /* O contador é de 32 bits: se o delay pedido for grande demais para
+     * caber em uma única contagem, fatiamos em blocos. */
+    while (ciclos > 0) {
+        unsigned int bloco = (ciclos > 0xFFFFFFFFULL) ? 0xFFFFFFFFU : (unsigned int)ciclos;
+
+        a9_timer[A9_TIMER_CONTROL] = 0;              /* desabilita antes de configurar */
+        a9_timer[A9_TIMER_LOAD]    = bloco;
+        a9_timer[A9_TIMER_STATUS]  = 1;               /* limpa flag de evento pendente */
+        a9_timer[A9_TIMER_CONTROL] = (0 << 8)         /* prescaler = 0 (divide por 1) */
+                                    | (0 << 1)         /* auto-reload desligado */
+                                    | (1 << 0);        /* timer habilitado */
+
+        while ((a9_timer[A9_TIMER_STATUS] & 0x1) == 0) {
+            /* busy-wait: aguarda o contador chegar a zero */
+        }
+        a9_timer[A9_TIMER_STATUS] = 1; /* limpa a flag (escrever 1 limpa) */
+
+        ciclos -= bloco;
+    }
 }
