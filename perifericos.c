@@ -88,6 +88,7 @@ int hw_init(void) {
     ps2_reg = (volatile int *) ((char *)lw_bridge_map + PS2_KEYBOARD_OFF);
     a9_timer = (volatile unsigned int *) a9_timer_map;
 
+    (void)*ps2_reg; // consertar bug do keyboard input filtrado (loop infinito)
     /* vga_desenho começa apontando pro buffer de front até o primeiro swap */
     vga_desenho = (volatile short (*)[512]) sdram_map;
 
@@ -169,7 +170,10 @@ unsigned char keyboard_input_filtrado(void) {
 
         unsigned char byte = dados & 0xFF;
         if (byte == 0xF0) {
-            while (!(*ps2_reg & 0x8000));
+            int tentativas = 0;
+            while (!(*ps2_reg & 0x8000) && tentativas <100000) {
+                tentativas++; // conserta loop ifinito
+            }
             (void)*ps2_reg; /* descarta o código que segue o break code */
         } else if (byte != 0xE0) {
             ultimo_valido = byte;
