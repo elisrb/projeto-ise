@@ -1,4 +1,4 @@
-// includes necessários para testar (elis)
+// arquivo temporário para testar o fundo
 #include "perifericos.h"
 #include "fundos.h"
 #include <stdio.h>
@@ -12,6 +12,7 @@ int main(void) {
     inicializar_double_buffering();
     clear();
 
+    // parâmetro 
     int lin_max = 576;
 
     int x = 160, y = 120;
@@ -21,10 +22,11 @@ int main(void) {
         // printa o fundo
         for(int i = lin_max - 240; i < lin_max; i++) {
             for(int j = 0; j < 320; j++) {
-                write_pixel(j, (i - lin_max + 240), rota1[i][j]);
+                write_pixel(j, (i - lin_max + 240), rota1_fundo[i][j]);
             }
         }
 
+        // isso já tava no main
         unsigned char tecla = keyboard_input_filtrado();
 
         switch (tecla) {
