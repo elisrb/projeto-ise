@@ -114,9 +114,9 @@ void inverter_buffers(void) {
     *(vga_pixel_ctrl) = 1;
     while ((*(vga_pixel_ctrl + 3) & 0x1) != 0);
 
-    /* o registrador devolve o endereço FÍSICO do buffer atual;
-     * convertemos para o ponteiro virtual dentro do nosso mmap */
     uint32_t buf_fisico = (uint32_t)*(vga_pixel_ctrl);
+    printf("DEBUG: buf_fisico = 0x%X\n", buf_fisico); // <- temporário
+
     vga_desenho = (volatile short (*)[512])
         ((char *)sdram_map + (buf_fisico - BUFFER_BACK_SDRAM));
 }
