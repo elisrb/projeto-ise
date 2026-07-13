@@ -22,7 +22,9 @@
 #define VGA_PIXEL_CTRL_OFF 0x00003020
 #define PS2_KEYBOARD_OFF   0x00000100
 
-#define SDRAM_SPAN         0x08000000  /* mapeia C0000000 até CFFFFFFF de uma vez */
+#define SDRAM_SPAN         0x10000000  /* 256 MB -- precisa cobrir o offset do
+                                         * buffer de front (0x08000000) MAIS o
+                                         * tamanho de um framebuffer inteiro */
 #define CHAR_SPAN          0x00001000
 
 /* ===================== Estado interno ===================== */
