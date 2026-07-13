@@ -112,9 +112,9 @@ unsigned short espaco[MATRIZ_TAMANHO][MATRIZ_TAMANHO] = {
 
 // Função que converte um caractere ASCII para a sua posição (Coluna, Linha) na imagem
 CoordenadaGrid obter_coordenada_caractere(char c) {
-    CoordenadaGrid coord = {0, 0}; // Padrão caso não encontre (vai retornar o 'A')
+    CoordenadaGrid coord = {0, 4}; // Padrão caso não encontre (vai retornar espaço)
 
-    // 1. Letras Maiúsculas (A-P estão na Linha 0, Q-Z na Linha 1)
+    // Letras Maiúsculas (A-P estão na Linha 0, Q-Z na Linha 1)
     if (c >= 'A' && c <= 'P') {
         coord.coluna = c - 'A';
         coord.linha = 0;
@@ -123,7 +123,7 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
         coord.coluna = c - 'Q';
         coord.linha = 1;
     }
-    // 2. Letras Minúsculas (a-p estão na Linha 2, q-z na Linha 3)
+    // Letras Minúsculas (a-p estão na Linha 2, q-z na Linha 3)
     else if (c >= 'a' && c <= 'p') {
         coord.coluna = c - 'a';
         coord.linha = 2;
@@ -132,24 +132,67 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
         coord.coluna = c - 'q';
         coord.linha = 3;
     }
-    // 3. Números (0-9 estão na Linha 8, começando na Coluna 6)
+    // Números (0-9 estão na Linha 8, começando na Coluna 6)
     else if (c >= '0' && c <= '9') {
         coord.coluna = 6 + (c - '0');
         coord.linha = 8;
     }
-    // 4. Símbolos especiais do Menu (Espaço, Seta, Dois Pontos)
+    // Símbolos especiais
     else if (c == ' ') {
-        coord.coluna = 0; // Usaremos o bloco vazio (Linha 4 ou 5 está toda vazia)
+        coord.coluna = 0;
         coord.linha = 4;
     }
+    else if (c == '(') {
+        coord.coluna = 10;
+        coord.linha = 1;
+    }
+    else if (c == ')') {
+        coord.coluna = 11;
+        coord.linha = 1;
+    }
+    else if (c == ':') {
+        coord.coluna = 12;
+        coord.linha = 1;
+    }
+    else if (c == ';') {
+        coord.coluna = 13;
+        coord.linha = 1;
+    }
+    else if (c == '[') {
+        coord.coluna = 14;
+        coord.linha = 1;
+    }
+    else if (c == ']') {
+        coord.coluna = 15;
+        coord.linha = 1;
+    }
+    else if (c == '-') { 
+        coord.coluna = 3;
+        coord.linha = 7;
+    }
+    else if (c == '?') { 
+        coord.coluna = 6;
+        coord.linha = 7;
+    }
+    else if (c == '!') { 
+        coord.coluna = 7;
+        coord.linha = 7;
+    }
+    else if (c == '.') { 
+        coord.coluna = 8;
+        coord.linha = 7;
+    }
     else if (c == '>') { 
-        // A seta preenchida "►" está na Linha 7, Coluna 13 do seu grid
         coord.coluna = 13;
         coord.linha = 7;
     }
-    else if (c == ':') {
-        coord.coluna = 11;
-        coord.linha = 1;
+    else if (c == '/') { 
+        coord.coluna = 3;
+        coord.linha = 8;
+    }
+    else if (c == ',') { 
+        coord.coluna = 4;
+        coord.linha = 8;
     }
 
     return coord;
