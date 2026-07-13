@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "perifericos.h"
+#include "perifericos_sdl.h"
 #include "fonte.h"
 #include "personagem.h"
 #include "sprites/sprites.h"
@@ -33,7 +33,7 @@ int main() {
     carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
 
     // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
-    start_player(&player, 26, 47, BAIXO);
+    start_player(&player, 36, 96, BAIXO);
 
     printf("Teste do motor de jogo com COLISÕES ativas!\n");
     printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
