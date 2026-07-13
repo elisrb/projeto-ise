@@ -114,11 +114,19 @@ void inverter_buffers(void) {
     *(vga_pixel_ctrl) = 1;
     while ((*(vga_pixel_ctrl + 3) & 0x1) != 0);
 
-    uint32_t buf_fisico = (uint32_t)*(vga_pixel_ctrl);
-    printf("DEBUG: buf_fisico = 0x%X\n", buf_fisico); // <- temporário
+    /* le o endereco do NOVO back buffer no offset +1 (nao +0, que
+     * devolve o buffer atualmente EXIBIDO, nao o que devemos desenhar) */
+    uint32_t buf_fisico = (uint32_t)*(vga_pixel_ctrl + 1);
 
-    vga_desenho = (volatile short (*)[512])
-        ((char *)sdram_map + (buf_fisico - BUFFER_BACK_SDRAM));
+    /* só aceita o endereço se ele realmente cair dentro da janela que
+     * mapeamos -- evita ponteiro selvagem se o registrador devolver
+     * algo inesperado (timing, IP core não pronto, etc.) */
+    if (buf_fisico >= BUFFER_BACK_SDRAM && buf_fisico < (BUFFER_BACK_SDRAM + SDRAM_SPAN)) {
+        vga_desenho = (volatile short (*)[512])
+            ((char *)sdram_map + (buf_fisico - BUFFER_BACK_SDRAM));
+    }
+    /* senão, mantém o vga_desenho anterior (mais seguro que apontar
+       pra endereço inválido) */
 }
 
 void write_pixel(int x, int y, short cor) {
