@@ -8,6 +8,7 @@ typedef struct {
 } CoordenadaGrid;
 
 // Protótipos das funções implementadas no seu .c
+CoordenadaGrid obter_coordenada_borda(char* str);
 CoordenadaGrid obter_coordenada_caractere(char c);
 void desenhar_caractere(int tela_x, int tela_y, char caractere);
 void desenhar_texto(int tela_x, int tela_y, const char *texto);
