@@ -110,7 +110,7 @@ unsigned short espaco[MATRIZ_TAMANHO][MATRIZ_TAMANHO] = {
     {0xFF5F, 0xFF5F, 0xFF5F, 0xFF5F, 0xFF5F, 0xFF5F, 0xFF5F, 0xFF5F}
 };
 
-CoordenadaGrid obter_borda(char* str) {
+CoordenadaGrid obter_coordenada_borda(char* str) {
     CoordenadaGrid coord = {15, 9}; // Padrão caso não encontre (vai retornar espaço)
 
     if (strcmp(str, "canto_sup_dir") == 0) coord.coluna = 11;
