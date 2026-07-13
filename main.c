@@ -1,50 +1,70 @@
+#include <stdio.h>
 #include "perifericos.h"
 #include "fonte.h"
-#include <stdio.h>
 #include "personagem.h"
 #include "sprites/sprites.h"
+#include "sprites/fundos.h"
+#include "sprites/colisao.h"
 
-// --- VARIAVEIS DE TESTE ---
-Jogador player;
-int camera_x = 0; // Camera estatica no topo esquerdo para o teste
-int camera_y = 0;
 
 int main() {
-    // 1. Inicializa os componentes de video/teclado (mmap na placa,
-    // janela SDL no simulador -- depende de qual perifericos.c foi linkado)
+    Jogador player;
+    // 1. Inicializa os componentes de vídeo/teclado (mmap na placa ou janela SDL no simulador)
     if (hw_init() != 0) {
-        printf("Falha ao inicializar hardware\n");
+        printf("Falha ao inicializar o hardware da DE1-SoC.\n");
         return 1;
     }
+    
+    // Inicializa o sistema de double buffering da VGA
     inicializar_double_buffering();
 
-    // 2. Inicializa o nosso personagem
-    start_player(&player, 160, 120, BAIXO); // centralizado, olhando pra frente
+    // 2. Configura as dimensões dos cenários (caso não estejam pré-configuradas no fundos.c)
+    // Se o seu fundos.c já define esses tamanhos, você pode remover estas linhas:
+    cidade.largura = 320; 
+    cidade.altura = 288;
+    rota1.largura = 320;  
+    rota1.altura = 576;
+    // (Adicione as dimensões dos outros cenários se for testá-los)
 
-    printf("Iniciando teste do sprite do Red...\n");
+    // 3. Carrega o cenário inicial (Cidade de Pallet)
+    carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
 
-    // 3. Loop Principal do Jogo
+    // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
+    // Como a cidade tem 320x288, iniciar em (160, 120) é perfeito
+    start_player(&player, 160, 120, BAIXO);
+
+    printf("Teste do motor de jogo iniciado com sucesso!\n");
+    printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
+
+    // 5. Loop Principal do Jogo
     while (1) {
-        // 4. Limpa a tela antes de desenhar o frame novo
+        // A. Limpa o buffer dos comandos de desenho (opcional, já que o cenário cobre a tela toda)
         clear();
 
-        // 5. Le a tecla pressionada e move o jogador
-        unsigned char tecla = keyboard_input();
+        // B. Lê a tecla pressionada e processa o movimento do jogador (respeitando os limites do mapa)
+        unsigned char tecla = keyboard_input_filtrado();
         mover_jogador(&player, tecla);
 
-        // 6. Atualiza a logica da animacao
+        // C. Atualiza a posição da câmera para seguir o jogador e travar nas bordas do mapa
+        atualizar_camera(player.x, player.y);
+
+        // D. Atualiza a lógica de animação das pernas do Red
         atualizar_animacao_jogador(&player);
 
-        // 7. Desenha o jogador na tela passando a camera
+        // E. Desenha a parte visível do cenário de fundo baseado na posição atual da câmera
+        desenhar_cenario();
+
+        // F. Desenha o jogador por cima do cenário (passando a câmera calculada)
         desenhar_jogador(camera_x, camera_y, &player);
 
-        // 8. Mostra o frame na tela e processa eventos de teclado/janela
+        // G. Realiza a troca dos buffers da VGA para mostrar o frame renderizado sem screen tearing
         inverter_buffers();
 
-        // 9. Controla os FPS (~60fps)
+        // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
         delay(16);
     }
 
+    // Código de encerramento caso o loop termine (boa prática de segurança)
     hw_cleanup();
     return 0;
 }

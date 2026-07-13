@@ -1,6 +1,16 @@
 #include "personagem.h"
 #include "sprites/sprites.h"
 #include "perifericos.h"
+#include "sprites/fundos.h"
+#include "sprites/colisao.h"
+
+
+int camera_x = 0;
+int camera_y = 0;
+
+struct Cenario *cenario_atual;
+const unsigned short *pixels_cenario_atual;
+
 
 void start_player(Jogador *player, int dx, int dy, int dir) {
     player->x = dx;
@@ -46,17 +56,23 @@ void atualizar_animacao_jogador(Jogador *player) {
 
 
 void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
-    int tela_x = player->x - camera_x;
-    int tela_y = player->y - camera_y;
+    int tela_x = player->x - camera_x + OFFSET_X;
+    int tela_y = player->y - camera_y + OFFSET_Y;
 
-    const unsigned short (*sprite_atual)[16] = SPRITES_RED[player->direcao][player->frame_atual];
+    if (tela_x >= OFFSET_X - SPRITE_TAMANHO && tela_x < (OFFSET_X + CAM_LARGURA) &&
+        tela_y >= OFFSET_Y - SPRITE_TAMANHO && tela_y < (OFFSET_Y + CAM_ALTURA)) {
 
-    for (int y = 0; y < SPRITE_TAMANHO; y++) {
-        for (int x = 0; x < SPRITE_TAMANHO; x++) {
-            unsigned short cor_pixel = sprite_atual[y][x];
+        // CORREÇÃO AQUI: Declara como um ponteiro para um array de 16 elementos
+        const unsigned short (*sprite_atual)[16] = SPRITES_RED[player->direcao][player->frame_atual];
 
-            if (cor_pixel != 0xFBE5) {
-                write_pixel(tela_x + x, tela_y + y, cor_pixel);
+        for (int y = 0; y < SPRITE_TAMANHO; y++) {
+            for (int x = 0; x < SPRITE_TAMANHO; x++) {
+                // CORREÇÃO AQUI: Acessa como matriz bidimensional [y][x]
+                unsigned short cor_pixel = sprite_atual[y][x];
+
+                if (cor_pixel != 0xFBE5) {
+                    write_pixel(tela_x + x, tela_y + y, cor_pixel);
+                }
             }
         }
     }
@@ -92,5 +108,72 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
             player->movendo = 0;
             break;
+    }
+}
+
+void carregar_cenario(struct Cenario *novo_cenario, const unsigned short *novos_pixels) {
+    cenario_atual = novo_cenario;
+    pixels_cenario_atual = novos_pixels;
+    
+    // Opcional: reposicionar o Red dependendo de onde ele está entrando
+    // player.x = ...
+    // player.y = ...
+}
+
+void atualizar_camera(int jogador_x, int jogador_y) {
+    if (!cenario_atual) return;
+
+    // 1. Centraliza a janela dinâmica no Red
+    camera_x = jogador_x - (CAM_LARGURA / 2) + 8;
+    camera_y = jogador_y - (CAM_ALTURA / 2) + 8;
+
+    // 2. Trava no topo/esquerda
+    if (camera_x < 0) camera_x = 0;
+    if (camera_y < 0) camera_y = 0;
+
+    // 3. Trava na direita (se o cenário for menor que a janela, fixa em 0)
+    if (cenario_atual->largura < CAM_LARGURA) {
+        camera_x = 0;
+    } else if (camera_x > (cenario_atual->largura - CAM_LARGURA)) {
+        camera_x = cenario_atual->largura - CAM_LARGURA;
+    }
+
+    // 4. Trava embaixo (se o cenário for mais baixo que a janela, fixa em 0)
+    if (cenario_atual->altura < CAM_ALTURA) {
+        camera_y = 0;
+    } else if (camera_y > (cenario_atual->altura - CAM_ALTURA)) {
+        camera_y = cenario_atual->altura - CAM_ALTURA;
+    }
+}
+
+void desenhar_cenario() {
+    if (!cenario_atual || !pixels_cenario_atual) return;
+
+    int mapa_largura = cenario_atual->largura;
+    int mapa_altura = cenario_atual->altura;
+
+    for (int y = 0; y < TELA_ALTURA; y++) {
+        for (int x = 0; x < TELA_LARGURA; x++) {
+            
+            // Verifica dinamicamente se o pixel está dentro dos limites da janela configurada
+            if (x >= OFFSET_X && x < (OFFSET_X + CAM_LARGURA) &&
+                y >= OFFSET_Y && y < (OFFSET_Y + CAM_ALTURA)) {
+                
+                // Mapeia a posição da tela de volta para o mundo
+                int mundo_x = camera_x + (x - OFFSET_X);
+                int mundo_y = camera_y + (y - OFFSET_Y);
+
+                // Proteção para cenários que são menores que a própria janela do jogo
+                if (mundo_x >= mapa_largura || mundo_y >= mapa_altura) {
+                    write_pixel(x, y, 0x0000); 
+                } else {
+                    unsigned short cor = pixels_cenario_atual[mundo_y * mapa_largura + mundo_x];
+                    write_pixel(x, y, cor);
+                }
+            } else {
+                // Desenha a borda preta na região que sobrou
+                write_pixel(x, y, 0x0000);
+            }
+        }
     }
 }
