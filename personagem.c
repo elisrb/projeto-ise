@@ -168,7 +168,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
                     
                     printf("Porta detectada!");
 
-                    carregar_cenario(porta_teste.destino);
+                    cenario_atual = porta_teste.destino;
 
                     player->destino_x = (porta_teste.novo_x)*16;
                     player->destino_y = (porta_teste.novo_y)*16;
@@ -181,10 +181,6 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
             break;
     }
     // se for obstáculo, nada acontece
-}
-
-void carregar_cenario(Cenario *novo_cenario) {
-    cenario_atual = novo_cenario;
 }
 
 void atualizar_camera(int jogador_x, int jogador_y) {
