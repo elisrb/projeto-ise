@@ -8,7 +8,7 @@
 
 int main() {
     Jogador player;
-    // 1. Inicializa os componentes de vídeo/teclado (mmap na placa ou janela SDL no simulador)
+    // Inicializa os periféricos (placa ou simulador)
     if (hw_init() != 0) {
         printf("Falha ao inicializar o hardware da DE1-SoC.\n");
         return 1;
@@ -17,28 +17,16 @@ int main() {
     // Inicializa o sistema de double buffering da VGA
     inicializar_double_buffering();
 
-    // 2. Configura as dimensões E AS MATRIZES DE COLISÃO dos cenários
-    cidade.largura = 320; 
-    cidade.altura = 288;
-    cidade.mapa_colisao = (const Terreno *)cidade_colisao; // <-- VINCULA A COLISÃO DA CIDADE
+    // Carrega o cenário inicial (Cidade de Pallet)
+    carregar_cenario(&cidade);
 
-    rota1.largura = 320;  
-    rota1.altura = 576;
-    rota1.mapa_colisao = (const Terreno *)rota1_colisao;   // <-- VINCULA A COLISÃO DA ROTA 1
-    
-    // Se for testar as casas ou lab depois, basta fazer o mesmo:
-    // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const Terreno *)casa1_colisao;
-
-    // 3. Carrega o cenário inicial (Cidade de Pallet)
-    carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
-
-    // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
+    // Inicializa o Red no meio da tela olhando para baixo
     start_player(&player, 36, 96, BAIXO);
 
     printf("Teste do motor de jogo com COLISÕES ativas!\n");
     printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
 
-    // 5. Loop Principal do Jogo
+    // Loop Principal do Jogo
     clear();
     while (1) {
         // A. Limpa o buffer dos comandos de desenho
