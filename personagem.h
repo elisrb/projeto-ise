@@ -30,14 +30,20 @@ typedef enum {
 
 // --- ESTRUTURA DO JOGADOR ---
 typedef struct {
-    int x;                 // Posição X no mundo gigante (pixels)
-    int y;                 // Posição Y no mundo gigante (pixels)
-    Direcao direcao;       // Direção atual (CIMA, DIREITA, BAIXO, ESQUERDA)
-    int movendo;           // Flag: 1 se estiver andando, 0 se parado
-    int movendo_anterior;  // Flag do frame anterior para o gatilho visual imediato
-    int frame_atual;       // Coluna atual na matriz de sprites (0, 1 ou 2)
-    int timer_animacao;    // Contador para controlar a taxa de frames das pernas
-    int timer_movimento;   // Contador auxiliar para controle de passo (se necessário)
+    int x;
+    int y;
+ 
+    int destino_x; // posição (em pixels) do tile pra onde está indo
+    int destino_y;
+ 
+    Direcao direcao;
+    int movendo;
+ 
+    int frame_atual;     // frame atual do personagem
+    int timer_animacao;  // tempo para o pulo da imagem
+ 
+    int timer_movimento; // contador de frames desde o último passo
+    int movendo_anterior; // estado de 'movendo' no frame passado (detecta transição)
 } Jogador;
 
 // --- VARIÁVEIS GLOBAIS DA CÂMERA E CENÁRIO ---

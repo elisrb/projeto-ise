@@ -13,14 +13,19 @@ const unsigned short *pixels_cenario_atual;
 
 
 void start_player(Jogador *player, int dx, int dy, int dir) {
-    player->x = dx;
-    player->y = dy;
+    // arredonda pro múltiplo de 16 mais próximo -- evita o bug de
+    // desalinhamento que causou o personagem "flutuando" fora do mapa
+    player->x = (dx / 16) * 16;
+    player->y = (dy / 16) * 16;
+    player->destino_x = player->x;
+    player->destino_y = player->y;
+
     player->direcao = dir;
     player->movendo = 0;
     player->frame_atual = 1;
     player->timer_animacao = 0;
     player->timer_movimento = 0;
-    player->movendo_anterior = 0; 
+    player->movendo_anterior = 0;
 }
 
 void atualizar_animacao_jogador(Jogador *player) {
@@ -82,49 +87,46 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
 void mover_jogador(Jogador *player, unsigned char tecla) {
     if (!cenario_atual) return;
 
-    int prox_x = player->x;
-    int prox_y = player->y;
-    player->movendo = 1;
+    // Se já está no meio de um passo, só continua avançando na direção
+    // do destino -- ignora tecla nova até completar o tile atual
+    if (player->movendo) {
+        if (player->x < player->destino_x) player->x += VELOCIDADE;
+        if (player->x > player->destino_x) player->x -= VELOCIDADE;
+        if (player->y < player->destino_y) player->y += VELOCIDADE;
+        if (player->y > player->destino_y) player->y -= VELOCIDADE;
 
-    switch (tecla) {
-        case 0x1D: case 0x75: // W / CIMA
-            player->direcao = CIMA;
-            prox_y -= VELOCIDADE;
-            break;
-
-        case 0x1B: case 0x72: // S / BAIXO
-            player->direcao = BAIXO;
-            prox_y += VELOCIDADE;
-            break;
-
-        case 0x1C: case 0x6B: // A / ESQUERDA
-            player->direcao = ESQUERDA;
-            prox_x -= VELOCIDADE;
-            break;
-
-        case 0x23: case 0x74: // D / DIREITA
-            player->direcao = DIREITA;
-            prox_x += VELOCIDADE;
-            break;
-
-        default:
+        if (player->x == player->destino_x && player->y == player->destino_y) {
             player->movendo = 0;
-            return; // Nenhuma tecla válida, sai sem fazer nada
+        }
+        return;
     }
 
-    // --- CHECAGEM DE TERRENO ---
+    int dx = 0, dy = 0;
+    switch (tecla) {
+        case 0x1D: case 0x75: player->direcao = CIMA;      dy = -16; break;
+        case 0x1B: case 0x72: player->direcao = BAIXO;     dy =  16; break;
+        case 0x1C: case 0x6B: player->direcao = ESQUERDA;  dx = -16; break;
+        case 0x23: case 0x74: player->direcao = DIREITA;   dx =  16; break;
+        default:
+            return; // nenhuma tecla -- fica parado, sem iniciar passo novo
+    }
+
+    int prox_x = player->x + dx;
+    int prox_y = player->y + dy;
+
     enum Terreno resultado_terreno = checar_colisao(prox_x, prox_y);
 
     if (resultado_terreno != OBSTACULO) {
-        // Movimento livre permitido! Atualiza a posição real
-        player->x = prox_x;
-        player->y = prox_y;
+        player->destino_x = prox_x;
+        player->destino_y = prox_y;
+        player->movendo = 1;
 
         if (resultado_terreno == GRAMA) {
-            // Aqui você pode colocar uma lógica futura de sorteio (ex: rand() % 100)
-            // para disparar batalhas contra Pokémons selvagens!
+            // lógica futura de sorteio de encontro selvagem
         }
     }
+    // se for obstáculo, o personagem só girou a direção acima (já
+    // aconteceu no switch), sem se mover -- igual ao jogo original
 }
 
 void carregar_cenario(struct Cenario *novo_cenario, const unsigned short *novos_pixels) {
