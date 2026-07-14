@@ -54,8 +54,6 @@ unsigned char keyboard_input(void);
  * ignorando break codes (0xF0) e o prefixo extended (0xE0). */
 unsigned char keyboard_input_filtrado(void);
 
-int checar_colisao(int prox_x, int prox_y);
-
 /* ===================== Timing ===================== */
 
 /* Espera 'ms' milissegundos. Implementado com usleep (sem busy-wait

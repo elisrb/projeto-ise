@@ -18,7 +18,7 @@ int main() {
     inicializar_double_buffering();
 
     // Carrega o cenário inicial (Cidade de Pallet)
-    cenario_atual = cidade
+    cenario_atual = &cidade;
 
     // Inicializa o Red no meio da tela olhando para baixo
     start_player(&player, 36, 96, BAIXO);

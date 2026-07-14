@@ -155,13 +155,15 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
         case PORTA:
             printf("PORTA\n");
-            atualizar_camera(prox_x, prox_y);
-            atualizar_animacao_jogador(&player);
-            desenhar_cenario();
-            desenhar_jogador(camera_x, camera_y, &player);
 
-       
-            
+            /*// loop inteiro de desenhar o próximo frame antes de entrar na porta
+            atualizar_camera(prox_x, prox_y);
+            atualizar_animacao_jogador(player);
+            desenhar_cenario();
+            desenhar_jogador(camera_x, camera_y, player);
+            inverter_buffers();
+            delay(16);*/
+
             for (int i = 0; i < cenario_atual->qtd_portas; i++) {
                 Porta porta_teste = cenario_atual->portas[i];
                 if (prox_x/16 == porta_teste.x && prox_y/16 == porta_teste.y) {

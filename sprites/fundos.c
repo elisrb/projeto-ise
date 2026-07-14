@@ -1501,7 +1501,7 @@ const Porta lab_portas[2] = {
 
 const Porta cidade_portas[7] = {
     {
-        .x = 8, .y = 13,
+        .x = 5, .y = 5,
         .destino = &rota1,
         .novo_x = 10, .novo_y = 6
     }

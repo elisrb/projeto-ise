@@ -72,4 +72,6 @@ void atualizar_camera(int jogador_x, int jogador_y);
 // Varre a tela de 320x240 e desenha a parte visível da imagem do cenário de fundo
 void desenhar_cenario();
 
+int checar_colisao(int prox_x, int prox_y);
+
 #endif // PERSONAGEM_H
