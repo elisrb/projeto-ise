@@ -156,6 +156,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
         case PORTA:
             printf("PORTA\n");
             atualizar_camera(prox_x, prox_y);
+            desenhar_cenario();
             
             for (int i = 0; i < cenario_atual->qtd_portas; i++) {
                 Porta porta_teste = cenario_atual->portas[i];
