@@ -78,6 +78,7 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
     }
 }
 
+
 void mover_jogador(Jogador *player, unsigned char tecla) {
     if (!cenario_atual) return;
 
