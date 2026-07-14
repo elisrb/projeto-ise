@@ -50,7 +50,7 @@ typedef struct {
 // Declaradas como extern para que o main.c também possa ler os valores delas
 extern int camera_x;
 extern int camera_y;
-extern struct Cenario *cenario_atual;
+extern Cenario *cenario_atual;
 extern const unsigned short *pixels_cenario_atual;
 
 // --- ASSINATURAS DAS FUNÇÕES ---
@@ -68,7 +68,7 @@ void atualizar_animacao_jogador(Jogador *player);
 void desenhar_jogador(int camera_x, int camera_y, const Jogador *player);
 
 // Define qual é o cenário atual e seus limites de pixels
-void carregar_cenario(struct Cenario *novo_cenario, const unsigned short *novos_pixels);
+void carregar_cenario(Cenario *novo_cenario, const unsigned short *novos_pixels);
 
 // Calcula para onde a câmera deve ir para focar no Red, respeitando as bordas
 void atualizar_camera(int jogador_x, int jogador_y);
