@@ -5,6 +5,8 @@
 #include "sprites/sprites.h"
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
+#include "pokemons.h"
+#include "batalha.h"
 
 int main() {
     Jogador player;

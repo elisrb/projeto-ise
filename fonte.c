@@ -1,6 +1,7 @@
 #include "fonte.h"
 #include "perifericos_sdl.h"
 #include <string.h>
+#include <stdio.h>
 
 #define IMG_LARGURA 143
 #define IMG_ALTURA  89
@@ -253,6 +254,39 @@ void desenhar_texto(int tela_x, int tela_y, const char *texto) {
     while (texto[i] != '\0') {
         // Desenha o caractere atual
         desenhar_caractere(tela_x + (i * 8), tela_y, texto[i]); // Avança 8 pixels por letra
+        i++;
+    }
+}
+
+void escrever_texto_grid_rpg(int coluna, int linha, const char *texto, int tempo_letra) {
+    // Garante que as coordenadas da grade estejam dentro dos limites (20x18)
+    if (coluna < 0 || coluna >= 20 || linha < 0 || linha >= 18) {
+        return; 
+    }
+
+    // Transforma a coordenada da grade (coluna/linha) para pixels reais do Game Boy (multiplicando por 8)
+    // E soma os offsets de centralização na tela VGA (OFFSET_X e OFFSET_Y)
+    int pixel_x_inicial = OFFSET_X + (coluna * 8);
+    int pixel_y_inicial = OFFSET_Y + (linha * 8);
+
+    int i = 0;
+    while (texto[i] != '\0') {
+        // Calcula a posição do caractere atual avançando 8 pixels por letra
+        int pixel_x_atual = pixel_x_inicial + (i * 8);
+
+        // Se o texto for longo demais e for passar da largura da tela (coluna 19), interrompe para não quebrar o layout
+        if (pixel_x_atual >= (OFFSET_X + 160)) {
+            break; 
+        }
+
+        // Desenha o caractere diretamente na coordenada centralizada
+        desenhar_caractere(pixel_x_atual, pixel_y_inicial, texto[i]);
+        
+        // Faz a pausa do efeito de RPG
+        if (tempo_letra > 0) {
+            delay(tempo_letra);
+        }
+
         i++;
     }
 }
