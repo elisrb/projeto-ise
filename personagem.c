@@ -9,7 +9,7 @@
 int camera_x = 0;
 int camera_y = 0;
 
-struct Cenario *cenario_atual;
+Cenario *cenario_atual;
 const unsigned short *pixels_cenario_atual;
 
 
@@ -157,7 +157,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
     // aconteceu no switch), sem se mover -- igual ao jogo original
 }
 
-void carregar_cenario(struct Cenario *novo_cenario, const unsigned short *novos_pixels) {
+void carregar_cenario(Cenario *novo_cenario, const unsigned short *novos_pixels) {
     cenario_atual = novo_cenario;
     pixels_cenario_atual = novos_pixels;
     

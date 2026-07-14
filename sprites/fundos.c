@@ -1,32 +1,32 @@
 #include "fundos.h"
 
 
-struct Cenario rota1 = {
+Cenario rota1 = {
     .altura = 576,
     .largura = 320
 };
 
-struct Cenario casa1 = {
+Cenario casa1 = {
     .altura = 128,
     .largura = 128
 };
 
-struct Cenario casa2 = {
+Cenario casa2 = {
     .altura = 128,
     .largura = 128
 };
 
-struct Cenario casa_rival = {
+Cenario casa_rival = {
     .altura = 128,
     .largura = 128
 };
 
-struct Cenario lab = {
+Cenario lab = {
     .altura = 192,
     .largura = 160
 };
 
-struct Cenario cidade = {
+Cenario cidade = {
     .altura = 288,
     .largura = 320
 };

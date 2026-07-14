@@ -2,18 +2,18 @@
 #define FUNDOS_H
 #include "colisao.h"
 
-struct Cenario {
+typedef struct {
     int altura;
     int largura;
     const enum Terreno *mapa_colisao;
-};
+} Cenario;
 
-extern struct Cenario rota1;
-extern struct Cenario casa1;
-extern struct Cenario casa2;
-extern struct Cenario casa_rival;
-extern struct Cenario lab;
-extern struct Cenario cidade;
+extern Cenario rota1;
+extern Cenario casa1;
+extern Cenario casa2;
+extern Cenario casa_rival;
+extern Cenario lab;
+extern Cenario cidade;
 
 extern const unsigned short rota1_fundo[576][320];
 extern const unsigned short casa1_fundo[128][128];
