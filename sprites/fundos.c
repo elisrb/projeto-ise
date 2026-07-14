@@ -1,9 +1,5 @@
 #include "fundos.h"
 
-struct Cenario {
-    int altura;
-    int largura;
-};
 
 struct Cenario rota1 = {
     .altura = 576,
