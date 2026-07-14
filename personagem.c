@@ -3,6 +3,7 @@
 #include "perifericos.h"
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
+#include <stdlib.h>
 
 
 int camera_x = 0;
@@ -28,34 +29,61 @@ void start_player(Jogador *player, int dx, int dy, int dir) {
     player->movendo_anterior = 0;
 }
 
+#include <stdlib.h> // Para a função abs()
+
 void atualizar_animacao_jogador(Jogador *player) {
     if (player->movendo) {
+        // 1. Calcula a distância restante nos dois eixos
+        int dist_x = abs(player->destino_x - player->x);
+        int dist_y = abs(player->destino_y - player->y);
+        
+        // Pega a maior distância (já que ele só anda em um eixo por vez)
+        int dist_restante = (dist_x > dist_y) ? dist_x : dist_y;
+        
+        // Transforma a distância restante em progresso dentro do tile (0 a 16 pixels)
+        int progresso = 16 - dist_restante;
 
-        if (!player->movendo_anterior) {
-            if(player->direcao == ESQUERDA || player->direcao == DIREITA){
-                player->frame_atual = 1;
-            }
-            else{
-                player->frame_atual = 0;
-            }
-            player->timer_animacao = 0;
-        } else {
-            player->timer_animacao++;
-            if (player->timer_animacao >= 10) {
-                player->timer_animacao = 0;
-                player->frame_atual = (player->frame_atual + 1) % 4;
+        // ==========================================
+        // ANIMAÇÃO VERTICAL (CIMA / BAIXO)
+        // ==========================================
+        if (player->direcao == CIMA || player->direcao == BAIXO) {
+            if (progresso < 4 || progresso > 12) {
+                player->frame_atual = 1; // Pés Juntos (frente/costas)
+            } else {
+                // Descobre a paridade do tile para alternar o pé que inicia
+                int tile_x = player->destino_x / 16;
+                int tile_y = player->destino_y / 16;
+                int paridade = (tile_x + tile_y) % 2;
+                player->frame_atual = (paridade == 0) ? 0 : 2;
             }
         }
+        // ==========================================
+        // ANIMAÇÃO HORIZONTAL (ESQUERDA / DIREITA) - CICLO DE 3 PASSOS POR TILE
+        // ==========================================
+        else {
+            if (progresso <= 4) {
+                player->frame_atual = 0; // 1º tempo: Pés juntos (início do movimento)
+            } 
+            else if (progresso > 4 && progresso <= 10) {
+                player->frame_atual = 1; // 2º tempo: Pé esquerdo (meio do movimento)
+            } 
+            else {
+                player->frame_atual = 2; // 3º tempo: Pé direito (final do movimento)
+            }
+        }
+
     } else {
-        player->timer_animacao = 0;
+        // ==========================================
+        // JOGADOR TOTALMENTE PARADO
+        // ==========================================
         if (player->direcao == ESQUERDA || player->direcao == DIREITA) {
-            player->frame_atual = 0;
+            player->frame_atual = 0; // Pés juntos de lado é o frame 0
         } else {
-            // Para Cima e Baixo, mantém o frame 1 parado
-            player->frame_atual = 1; 
+            player->frame_atual = 1; // Pés juntos de frente/costas é o frame 1
         }
     }
 
+    // Guarda o estado para o próximo frame
     player->movendo_anterior = player->movendo;
 }
 
