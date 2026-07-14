@@ -142,7 +142,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
     int prox_x = player->x + dx;
     int prox_y = player->y + dy;
 
-    enum Terreno resultado_terreno = checar_colisao(prox_x, prox_y);
+    Terreno resultado_terreno = checar_colisao(prox_x, prox_y);
 
     if (resultado_terreno != OBSTACULO) {
         player->destino_x = prox_x;
@@ -249,7 +249,7 @@ int checar_colisao(int prox_x, int prox_y) {
 
             // 2. Mapeia a coordenada da matriz 2D para o array linear
             int indice = tile_y * colunas_de_tiles + tile_x;
-            enum Terreno tipo_bloco = cenario_atual->mapa_colisao[indice];
+            Terreno tipo_bloco = cenario_atual->mapa_colisao[indice];
 
             // 3. Se qualquer um dos cantos encostar em um obstáculo, bloqueia
             if (tipo_bloco == OBSTACULO) {

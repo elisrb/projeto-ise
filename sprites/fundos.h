@@ -5,7 +5,7 @@
 typedef struct {
     int altura;
     int largura;
-    const enum Terreno *mapa_colisao;
+    const Terreno *mapa_colisao;
 } Cenario;
 
 extern Cenario rota1;
