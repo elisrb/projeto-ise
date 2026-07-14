@@ -17,6 +17,8 @@
 #define OFFSET_X       ((TELA_LARGURA - CAM_LARGURA) / 2)
 #define OFFSET_Y       ((TELA_ALTURA - CAM_ALTURA) / 2)
 
+#define OFFSET_VISUAL_Y -4
+
 // --- ENUMERADOS ---
 typedef enum {
     CIMA = 0,

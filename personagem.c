@@ -57,7 +57,7 @@ void atualizar_animacao_jogador(Jogador *player) {
 
 void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
     int tela_x = player->x - camera_x + OFFSET_X;
-    int tela_y = player->y - camera_y + OFFSET_Y;
+    int tela_y = player->y - camera_y + OFFSET_Y + OFFSET_VISUAL_Y;
 
     if (tela_x >= OFFSET_X - SPRITE_TAMANHO && tela_x < (OFFSET_X + CAM_LARGURA) &&
         tela_y >= OFFSET_Y - SPRITE_TAMANHO && tela_y < (OFFSET_Y + CAM_ALTURA)) {
