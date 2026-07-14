@@ -20,14 +20,14 @@ int main() {
     // 2. Configura as dimensões E AS MATRIZES DE COLISÃO dos cenários
     cidade.largura = 320; 
     cidade.altura = 288;
-    cidade.mapa_colisao = (const enum Terreno *)cidade_colisao; // <-- VINCULA A COLISÃO DA CIDADE
+    cidade.mapa_colisao = (const Terreno *)cidade_colisao; // <-- VINCULA A COLISÃO DA CIDADE
 
     rota1.largura = 320;  
     rota1.altura = 576;
-    rota1.mapa_colisao = (const enum Terreno *)rota1_colisao;   // <-- VINCULA A COLISÃO DA ROTA 1
+    rota1.mapa_colisao = (const Terreno *)rota1_colisao;   // <-- VINCULA A COLISÃO DA ROTA 1
     
     // Se for testar as casas ou lab depois, basta fazer o mesmo:
-    // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const enum Terreno *)casa1_colisao;
+    // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const Terreno *)casa1_colisao;
 
     // 3. Carrega o cenário inicial (Cidade de Pallet)
     carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
