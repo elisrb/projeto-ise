@@ -66,9 +66,6 @@ void atualizar_animacao_jogador(Jogador *player);
 // Converte a posição do mundo para posição da tela e plota o sprite na VGA
 void desenhar_jogador(int camera_x, int camera_y, const Jogador *player);
 
-// Define qual é o cenário atual
-void carregar_cenario(Cenario *novo_cenario);
-
 // Calcula para onde a câmera deve ir para focar no Red, respeitando as bordas
 void atualizar_camera(int jogador_x, int jogador_y);
 
