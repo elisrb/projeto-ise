@@ -250,26 +250,26 @@ void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
     desenhar_pokemon_frente(desafiante.sprites->frente);
     desenhar_dialogo_batalhas();
 
-    escrever_texto(7, 10, "          ");
-    escrever_texto(7, 10, red.nome);
+    escrever_texto(10, 7, "          ");
+    escrever_texto(10, 7, red.nome);
 
-    escrever_texto(0, 1, "          ");
-    escrever_texto(0, 1, desafiante.nome);
+    escrever_texto(1, 0, "          ");
+    escrever_texto(1, 0, desafiante.nome);
 
-    escrever_texto(8, 14, ":L");
-    escrever_texto(1, 4, ":L");
+    escrever_texto(14, 8, ":L");
+    escrever_texto(4, 1, ":L");
 
     char tmp[4];
 
     snprintf(tmp, sizeof(tmp), "%d", red.nivel);
-    escrever_texto(8, 16, tmp);
+    escrever_texto(16, 8, tmp);
     snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
-    escrever_texto(1, 6, tmp);
+    escrever_texto(6, 1, tmp);
 
     snprintf(tmp, sizeof(tmp), "%d", red.hp_atual);
-    escrever_texto(10, 11, "   ");
-    escrever_texto(10, 11, tmp);
+    escrever_texto(11, 10, "   ");
+    escrever_texto(11, 10, tmp);
     snprintf(tmp, sizeof(tmp), "%d", red.hp_max);
-    escrever_texto(10, 15, "   ");
-    escrever_texto(10, 15, tmp);
+    escrever_texto(15, 10, "   ");
+    escrever_texto(15, 10, tmp);
 }
