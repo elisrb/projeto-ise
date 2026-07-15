@@ -8,11 +8,11 @@
 #define TELA_LARGURA_GB 160
 #define TELA_ALTURA_GB  144
 
-#define SETA_X_COL0   1   // Posição X para FIGHT e ITEM
-#define SETA_X_COL1   9  // Posição X para PKMN e RUN
+#define SETA_X_COL0   14   // Posição X para FIGHT e ITEM
+#define SETA_X_COL1   16  // Posição X para PKMN e RUN
 
-#define SETA_Y_LIN0   12 // Posição Y para FIGHT e PKMN
-#define SETA_Y_LIN1   13
+#define SETA_Y_LIN0   9 // Posição Y para FIGHT e PKMN
+#define SETA_Y_LIN1   15
 
 typedef enum {
     ESTADO_INTRO_BATALHA,     // <-- NOVO: "Wild [PKMN] wants to fight!"
@@ -36,8 +36,8 @@ extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
 extern int cursor_ataque; // De 0 a 3 para mapear os 4 golpes
 
-void processar_input_batalha(char tecla);
-void desenhar_batalha(void);
+void processar_input_batalha(unsigned char tecla);
+void desenhar_batalha(Pokemon red, Pokemon desafiante);
 void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);

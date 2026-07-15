@@ -27,14 +27,14 @@ int main(void)
     
     while (1) {
     // 1. Lê os controles
-    unsigned char tecla = keyboard_input_filtrado();
+    unsigned char tecla = keyboard_input();
 
     // 2. Limpa o que está no fundo
     clear();
 
     // 3. Desenha o cenário de fundo
-    desenhar_pokemons_batalhas(pokemon_red, pokemon_inimigo);
-
+    desenhar_batalha(pokemon_red, pokemon_inimigo);
+    
     // 4. Desenha o texto por cima (Toda vez, em todos os frames!)
     //escrever_texto(14, 1, "                 ");
     //escrever_texto(15, 1, "                 ");
@@ -44,6 +44,7 @@ int main(void)
     // 5. Joga o que desenhou para a tela
     inverter_buffers();
 
+    if (tecla != 0x00) processar_input_batalha(tecla);
     // 6. 60 FPS
     delay(16);
 }
