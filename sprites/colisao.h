@@ -4,7 +4,8 @@
 typedef enum {
     LIVRE,
     OBSTACULO,
-    GRAMA
+    GRAMA,
+    PORTA
 } Terreno;
 
 /* Mapas de colisão: dimensões [altura/16][largura/16] de cada fundo */

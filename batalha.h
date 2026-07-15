@@ -41,8 +41,6 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante);
 void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);
-void desenhar_pokemon_frente(int pos_x, int pos_y, const unsigned short *sprite);
-void desenhar_pokemon_costas(const unsigned short *sprite);
 void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante);
 
 #endif

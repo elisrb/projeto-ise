@@ -149,7 +149,7 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
     // Números (0-9 estão na Linha 8, começando na Coluna 6)
     else if (c >= '0' && c <= '9') {
         coord.coluna = 6 + (c - '0');
-        coord.linha = 8;
+        coord.linha = 7;
     }
     // Símbolos especiais
     else if (c == ' ') {
