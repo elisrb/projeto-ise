@@ -21,16 +21,7 @@ int main() {
     
     // Inicializa o sistema de double buffering da VGA
     inicializar_double_buffering();
-
-    // Carrega o cenário inicial (Cidade de Pallet)
-    cenario_atual = &cidade;
-
-    // Inicializa o Red no meio da tela olhando para baixo
-    start_player(&player, 36, 96, BAIXO);
-
-    inicializar_double_buffering();
-
-    clear();
+    
     Pokemon pokemon_inimigo;
     Pokemon pokemon_red;
     gerar_pokemon(&pokemon_inimigo, 1, 5, &charmander);
@@ -45,12 +36,6 @@ int main() {
 
     // 3. Desenha o cenário de fundo
     desenhar_pokemons_batalhas(pokemon_red, pokemon_inimigo);
-
-    // 4. Desenha o texto por cima (Toda vez, em todos os frames!)
-    //escrever_texto(14, 1, "                 ");
-    //escrever_texto(15, 1, "                 ");
-    //escrever_texto(16, 1, "                 ");
-    
     
     // 5. Joga o que desenhou para a tela
     inverter_buffers();
@@ -60,6 +45,5 @@ int main() {
 }
 
     hw_cleanup();
-
     return 0;
 }
