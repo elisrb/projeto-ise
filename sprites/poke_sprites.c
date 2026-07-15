@@ -280,21 +280,21 @@ const unsigned short pidgey_frente[40][40] = {
 const unsigned short pidgey_costas[32][32] = {0};
 
 SpritePokemon charmander = {
-    .frente = charmander_frente,
-    .costas = charmander_costas,
+    .frente = (const unsigned short *)charmander_frente,
+    .costas = (const unsigned short *)charmander_costas,
 };
 
 SpritePokemon bulbasaur = {
-    .frente = bulbasaur_frente,
-    .costas = bulbasaur_costas
+    .frente = (const unsigned short *)bulbasaur_frente,
+    .costas = (const unsigned short *)bulbasaur_costas
 };
 
 SpritePokemon squirtle = {
-    .frente = squirtle_frente,
-    .costas = squirtle_costas
+    .frente = (const unsigned short *)squirtle_frente,
+    .costas = (const unsigned short *)squirtle_costas
 };
 
 SpritePokemon pidgey = {
-    .frente = pidgey_frente,
-    .costas = pidgey_costas
+    .frente = (const unsigned short *)pidgey_frente,
+    .costas = (const unsigned short *)pidgey_costas
 };
