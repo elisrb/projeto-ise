@@ -1459,51 +1459,101 @@ const unsigned short cidade_fundo[288][320] = {
 };
 
 const Porta rota1_portas[2] = {
+    // entrada na cidade (2 blocos consecutivos)
+    {  
+        .x = 10, .y = 35,
+        .destino = &cidade,
+        .novo_x = 10, .novo_y = 1
+    },
     {
-        .x = 35, .y = 10,
-        .destino = &casa1,
-        .novo_x = 8, .novo_y = 12
+        .x = 11, .y = 35,
+        .destino = &cidade,
+        .novo_x = 11, .novo_y = 1
     }
 };
 
 
 const Porta casa1_portas[3] = {
+    // saída para a cidade (2 blocos consecutivos)
     {
-        .x = 8, .y = 13,
-        .destino = &rota1,
-        .novo_x = 10, .novo_y = 6
+        .x = 2, .y = 7,
+        .destino = &cidade,
+        .novo_x = 5, .novo_y = 6
+    },
+    {
+        .x = 3, .y = 7,
+        .destino = &cidade,
+        .novo_x = 5, .novo_y = 6
+    },
+    {   // escada para o 2º andar
+        .x = 7, .y = 1,
+        .destino = &casa2,
+        .novo_x = 7, .novo_y = 2
     }
 };
 
 const Porta casa2_portas[1] = {
-    {
-        .x = 8, .y = 13,
-        .destino = &rota1,
-        .novo_x = 10, .novo_y = 6
+    {   // escada para o 1º andar
+        .x = 7, .y = 1,
+        .destino = &casa1,
+        .novo_x = 7, .novo_y = 2
     }
 };
 
 const Porta casa_rival_portas[2] = {
+    // saída para a cidade (2 blocos consecutivos)
     {
-        .x = 8, .y = 13,
-        .destino = &rota1,
-        .novo_x = 10, .novo_y = 6
+        .x = 2, .y = 7,
+        .destino = &cidade,
+        .novo_x = 13, .novo_y = 6
+    },
+    {
+        .x = 3, .y = 7,
+        .destino = &cidade,
+        .novo_x = 13, .novo_y = 6
     }
 };
 
 const Porta lab_portas[2] = {
+    // saída para a cidade (2 blocos consecutivos)
     {
-        .x = 8, .y = 13,
-        .destino = &rota1,
-        .novo_x = 10, .novo_y = 6
+        .x = 4, .y = 11,
+        .destino = &cidade,
+        .novo_x = 12, .novo_y = 12
+    },
+    {
+        .x = 5, .y = 11,
+        .destino = &cidade,
+        .novo_x = 12, .novo_y = 12
     }
 };
 
-const Porta cidade_portas[7] = {
-    {
+const Porta cidade_portas[5] = {
+    {   // entrada para a casa 1
         .x = 5, .y = 5,
+        .destino = &casa1,
+        .novo_x = 2, .novo_y = 6
+    },
+    {   // entrada para a casa do rival
+        .x = 13, .y = 5,
+        .destino = &casa_rival,
+        .novo_x = 2, .novo_y = 6
+    },
+    {   // entrada para o laboratório
+        .x = 12, .y = 11,
+        .destino = &lab,
+        .novo_x = 4, .novo_y = 10
+    },
+    // saída para a rota 1 (2 blocos consecutivos)
+    {   
+        .x = 10, .y = 0,
         .destino = &rota1,
-        .novo_x = 10, .novo_y = 6
+        .novo_x = 11, .novo_y = 34
+    },
+    {   
+        .x = 11, .y = 0,
+        .destino = &rota1,
+        .novo_x = 11, .novo_y = 34
     }
 };
 
@@ -1555,7 +1605,7 @@ Cenario lab = {
 Cenario cidade = {
     .altura = 288,
     .largura = 320,
-    .qtd_portas = 7,
+    .qtd_portas = 5, // no mapa de colisões tem 7 portas mas 2 não estão definidas nesse jogo
     .mapa_colisao = (const Terreno *)cidade_colisao,
     .fundo = (const unsigned short *)cidade_fundo,
     .portas = (const Porta *)cidade_portas

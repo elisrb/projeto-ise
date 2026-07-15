@@ -94,7 +94,6 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
 
         for (int y = 0; y < SPRITE_TAMANHO; y++) {
             for (int x = 0; x < SPRITE_TAMANHO; x++) {
-                // CORREÇÃO AQUI: Acessa como matriz bidimensional [y][x]
                 unsigned short cor_pixel = sprite_atual[y][x];
 
                 if (cor_pixel != 0xFBE5) {
@@ -166,23 +165,25 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
             for (int i = 0; i < cenario_atual->qtd_portas; i++) {
                 Porta porta_teste = cenario_atual->portas[i];
+                printf("Checando porta %d: (%d, %d) = (%d, %d)\n", i, porta_teste.x, porta_teste.y, prox_x/16, prox_y/16);
                 if (prox_x/16 == porta_teste.x && prox_y/16 == porta_teste.y) {
-                    
-                    printf("Porta detectada!");
-
+                    printf("Encontrada porta para %p (%d, %d)\n", porta_teste.destino, porta_teste.novo_x, porta_teste.novo_y);
+                    delay(100);
                     cenario_atual = porta_teste.destino;
-
-                    player->destino_x = (porta_teste.novo_x)*16;
-                    player->destino_y = (porta_teste.novo_y)*16;
+                    player->x = (porta_teste.novo_x)*16;
+                    player->y = (porta_teste.novo_y)*16;
                     player->direcao = BAIXO;
                     player->movendo = 0;
-
                     break;
                 }
             }
             break;
+        
+        case OBSTACULO:
+            printf("OBSTACULO\n");
+            // não faz nada
+            break;
     }
-    // se for obstáculo, nada acontece
 }
 
 void atualizar_camera(int jogador_x, int jogador_y) {
