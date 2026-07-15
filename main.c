@@ -2,20 +2,31 @@
 
 #include "perifericos_sdl.h"
 #include "fonte.h"
-#include "sprites/telas_batalha.h"
 #include "batalha.h"
 #include "pokemons.h"
+#include "personagem.h"
+#include "sprites/telas_batalha.h"
 #include "sprites/poke_sprites.h"
+#include "sprites/sprites.h"
+#include "sprites/fundos.h"
+#include "sprites/colisao.h"
 
-
-
-int main(void)
-{
-    if (hw_init() != 0)
-    {
-        printf("Erro ao iniciar SDL.\n");
+int main() {
+    Jogador player;
+    // Inicializa os periféricos (placa ou simulador)
+    if (hw_init() != 0) {
+        printf("Falha ao inicializar periféricos.\n");
         return 1;
     }
+    
+    // Inicializa o sistema de double buffering da VGA
+    inicializar_double_buffering();
+
+    // Carrega o cenário inicial (Cidade de Pallet)
+    cenario_atual = &cidade;
+
+    // Inicializa o Red no meio da tela olhando para baixo
+    start_player(&player, 36, 96, BAIXO);
 
     inicializar_double_buffering();
 

@@ -4,18 +4,15 @@
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
 #include <stdlib.h>
-
+//#include<stdio.h> // para o printf de debug
 
 int camera_x = 0;
 int camera_y = 0;
 
 Cenario *cenario_atual;
-const unsigned short *pixels_cenario_atual;
-
 
 void start_player(Jogador *player, int dx, int dy, int dir) {
-    // arredonda pro múltiplo de 16 mais próximo -- evita o bug de
-    // desalinhamento que causou o personagem "flutuando" fora do mapa
+    // arredonda pro múltiplo de 16 mais próximo
     player->x = (dx / 16) * 16;
     player->y = (dy / 16) * 16;
     player->destino_x = player->x;
@@ -28,8 +25,6 @@ void start_player(Jogador *player, int dx, int dy, int dir) {
     player->timer_movimento = 0;
     player->movendo_anterior = 0;
 }
-
-#include <stdlib.h> // Para a função abs()
 
 void atualizar_animacao_jogador(Jogador *player) {
     if (player->movendo) {
@@ -87,7 +82,6 @@ void atualizar_animacao_jogador(Jogador *player) {
     player->movendo_anterior = player->movendo;
 }
 
-
 void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
     int tela_x = player->x - camera_x + OFFSET_X;
     int tela_y = player->y - camera_y + OFFSET_Y + OFFSET_VISUAL_Y;
@@ -100,7 +94,6 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
 
         for (int y = 0; y < SPRITE_TAMANHO; y++) {
             for (int x = 0; x < SPRITE_TAMANHO; x++) {
-                // CORREÇÃO AQUI: Acessa como matriz bidimensional [y][x]
                 unsigned short cor_pixel = sprite_atual[y][x];
 
                 if (cor_pixel != 0xFBE5) {
@@ -110,7 +103,6 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
         }
     }
 }
-
 
 void mover_jogador(Jogador *player, unsigned char tecla) {
     if (!cenario_atual) return;
@@ -136,7 +128,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
         case 0x1C: case 0x6B: player->direcao = ESQUERDA;  dx = -16; break;
         case 0x23: case 0x74: player->direcao = DIREITA;   dx =  16; break;
         default:
-            return; // nenhuma tecla -- fica parado, sem iniciar passo novo
+            return; // nenhuma tecla -- não se move, interrompe a função
     }
 
     int prox_x = player->x + dx;
@@ -144,26 +136,54 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
     Terreno resultado_terreno = checar_colisao(prox_x, prox_y);
 
-    if (resultado_terreno != OBSTACULO) {
-        player->destino_x = prox_x;
-        player->destino_y = prox_y;
-        player->movendo = 1;
+    switch(resultado_terreno) {
+        case LIVRE:
+            //printf("LIVRE\n");
+            player->destino_x = prox_x;
+            player->destino_y = prox_y;
+            player->movendo = 1;
+            break;
 
-        if (resultado_terreno == GRAMA) {
-            // lógica futura de sorteio de encontro selvagem
-        }
+        case GRAMA:
+            //printf("GRAMA\n");
+            // sorteio de combate aleatório, se não:
+            player->destino_x = prox_x;
+            player->destino_y = prox_y;
+            player->movendo = 1;
+            break;
+
+        case PORTA:
+            //printf("PORTA\n");
+
+            /*// loop inteiro de desenhar o próximo frame antes de entrar na porta
+            atualizar_camera(prox_x, prox_y);
+            atualizar_animacao_jogador(player);
+            desenhar_cenario();
+            desenhar_jogador(camera_x, camera_y, player);
+            inverter_buffers();
+            delay(16);*/
+
+            for (int i = 0; i < cenario_atual->qtd_portas; i++) {
+                Porta porta_teste = cenario_atual->portas[i];
+                //printf("Checando porta %d: (%d, %d) = (%d, %d)\n", i, porta_teste.x, porta_teste.y, prox_x/16, prox_y/16);
+                if (prox_x/16 == porta_teste.x && prox_y/16 == porta_teste.y) {
+                    //printf("Encontrada porta para %p (%d, %d)\n", porta_teste.destino, porta_teste.novo_x, porta_teste.novo_y);
+                    delay(100);
+                    cenario_atual = porta_teste.destino;
+                    player->x = (porta_teste.novo_x)*16;
+                    player->y = (porta_teste.novo_y)*16;
+                    player->direcao = BAIXO;
+                    player->movendo = 0;
+                    break;
+                }
+            }
+            break;
+        
+        case OBSTACULO:
+            //printf("OBSTACULO\n");
+            // não faz nada
+            break;
     }
-    // se for obstáculo, o personagem só girou a direção acima (já
-    // aconteceu no switch), sem se mover -- igual ao jogo original
-}
-
-void carregar_cenario(Cenario *novo_cenario, const unsigned short *novos_pixels) {
-    cenario_atual = novo_cenario;
-    pixels_cenario_atual = novos_pixels;
-    
-    // Opcional: reposicionar o Red dependendo de onde ele está entrando
-    // player.x = ...
-    // player.y = ...
 }
 
 void atualizar_camera(int jogador_x, int jogador_y) {
@@ -193,7 +213,7 @@ void atualizar_camera(int jogador_x, int jogador_y) {
 }
 
 void desenhar_cenario() {
-    if (!cenario_atual || !pixels_cenario_atual) return;
+    if (!cenario_atual || !cenario_atual->fundo) return;
 
     int mapa_largura = cenario_atual->largura;
     int mapa_altura = cenario_atual->altura;
@@ -213,7 +233,7 @@ void desenhar_cenario() {
                 if (mundo_x >= mapa_largura || mundo_y >= mapa_altura) {
                     write_pixel(x, y, 0x0000); 
                 } else {
-                    unsigned short cor = pixels_cenario_atual[mundo_y * mapa_largura + mundo_x];
+                    unsigned short cor = cenario_atual->fundo[mundo_y * mapa_largura + mundo_x];
                     write_pixel(x, y, cor);
                 }
             } else {
@@ -227,42 +247,19 @@ void desenhar_cenario() {
 int checar_colisao(int prox_x, int prox_y) {
     if (!cenario_atual || !cenario_atual->mapa_colisao) return OBSTACULO;
 
-    // Calcula a largura em número de blocos (tiles) para a matemática de índice linear
+    // converte a posição do personagem e o tamanho do cenário em blocos
     int colunas_de_tiles = cenario_atual->largura / 16;
     int linhas_de_tiles = cenario_atual->altura / 16;
+    int tile_x = prox_x / 16;
+    int tile_y = prox_y / 16;
 
-    // Pontos do Sprite de 16x16 para testar colisão (Cantos)
-    // Subtraímos 1 pixel na direita/baixo para não ler o bloco seguinte sem querer
-    int pontos_x[2] = { prox_x, prox_x + 15 };
-    int pontos_y[2] = { prox_y, prox_y + 15 };
-
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
-            int tile_x = pontos_x[i] / 16;
-            int tile_y = pontos_y[j] / 16;
-
-            // 1. Proteção de bordas do mapa
-            if (tile_x < 0 || tile_x >= colunas_de_tiles || 
-                tile_y < 0 || tile_y >= linhas_de_tiles) {
-                return OBSTACULO; 
-            }
-
-            // 2. Mapeia a coordenada da matriz 2D para o array linear
-            int indice = tile_y * colunas_de_tiles + tile_x;
-            Terreno tipo_bloco = cenario_atual->mapa_colisao[indice];
-
-            // 3. Se qualquer um dos cantos encostar em um obstáculo, bloqueia
-            if (tipo_bloco == OBSTACULO) {
-                return OBSTACULO;
-            }
-        }
+    // impede o jogador de passar da borda
+    if (tile_x < 0 || tile_x >= colunas_de_tiles || 
+        tile_y < 0 || tile_y >= linhas_de_tiles) {
+        return OBSTACULO; 
     }
 
-    // Se nenhum canto encostou em obstáculo, podemos verificar se ele está pisando na grama
-    // Pegamos o centro do Red para definir se ele de fato está "dentro" da grama
-    int centro_tile_x = (prox_x + 8) / 16;
-    int centro_tile_y = (prox_y + 8) / 16;
-    int indice_centro = centro_tile_y * colunas_de_tiles + centro_tile_x;
-    
-    return cenario_atual->mapa_colisao[indice_centro];
+    // retorna o bloco correspondente do mapa de colisão
+    int indice = tile_y * colunas_de_tiles + tile_x;    
+    return cenario_atual->mapa_colisao[indice];
 }
