@@ -4,6 +4,184 @@
 #include "pokemons.h"
 #include "sprites/telas_batalha.h"
 #include "fonte.h"
+#include <stdio.h>
+
+EstadoBatalha estado_atual = ESTADO_INTRO_BATALHA;
+OpcaoMenu opcao_selecionada = OPCAO_FIGHT;
+int cursor_ataque = 0;
+
+void processar_input_batalha(char tecla) {
+    if (tecla >= 'A' && tecla <= 'Z') {
+        tecla = tecla + 32; 
+    }
+
+    switch (estado_atual) {
+
+        case ESTADO_INTRO_BATALHA:
+            if (tecla == 'x') {
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+                opcao_selecionada = OPCAO_FIGHT; // Reseta o cursor no FIGHT
+            }
+            break;
+        
+        case ESTADO_MENU_PRINCIPAL:
+            if (tecla == 'd') { // Direita
+                if (opcao_selecionada == OPCAO_FIGHT) opcao_selecionada = OPCAO_PKMN;
+                else if (opcao_selecionada == OPCAO_ITENS) opcao_selecionada = OPCAO_RUN;
+            }
+            else if (tecla == 'a') { // Esquerda
+                if (opcao_selecionada == OPCAO_PKMN) opcao_selecionada = OPCAO_FIGHT;
+                else if (opcao_selecionada == OPCAO_RUN) opcao_selecionada = OPCAO_ITENS;
+            }
+            else if (tecla == 's') { // Baixo
+                if (opcao_selecionada == OPCAO_FIGHT) opcao_selecionada = OPCAO_ITENS;
+                else if (opcao_selecionada == OPCAO_PKMN) opcao_selecionada = OPCAO_RUN;
+            }
+            else if (tecla == 'w') { // Cima
+                if (opcao_selecionada == OPCAO_ITENS) opcao_selecionada = OPCAO_FIGHT;
+                else if (opcao_selecionada == OPCAO_RUN) opcao_selecionada = OPCAO_PKMN;
+            }
+            
+            else if (tecla == 'x') {
+                if (opcao_selecionada == OPCAO_FIGHT) {
+                    estado_atual = ESTADO_MENU_LUTAR;
+                    cursor_ataque = 0; // Começa no primeiro golpe
+                } 
+                else if (opcao_selecionada == OPCAO_PKMN) {
+                    estado_atual = ESTADO_MENU_POKEMON;
+                } 
+                else if (opcao_selecionada == OPCAO_ITENS) {
+                    estado_atual = ESTADO_MENU_ITENS;
+                } 
+                else if (opcao_selecionada == OPCAO_RUN) {
+                    printf("Correndo da batalha...\n");
+                    estado_atual = ESTADO_FIM_BATALHA;
+                }
+            }
+            break;
+
+        case ESTADO_MENU_LUTAR:
+            if (tecla == 'd') {
+                if (cursor_ataque == 0) cursor_ataque = 1;
+                else if (cursor_ataque == 2) cursor_ataque = 3;
+            }
+            else if (tecla == 'a') {
+                if (cursor_ataque == 1) cursor_ataque = 0;
+                else if (cursor_ataque == 3) cursor_ataque = 2;
+            }
+            else if (tecla == 's') {
+                if (cursor_ataque == 0) cursor_ataque = 2;
+                else if (cursor_ataque == 1) cursor_ataque = 3;
+            }
+            else if (tecla == 'w') {
+                if (cursor_ataque == 2) cursor_ataque = 0;
+                else if (cursor_ataque == 3) cursor_ataque = 1;
+            }
+            
+            else if (tecla == 'x') {
+                printf("Usando o ataque %d!\n", cursor_ataque);
+                estado_atual = ESTADO_PROCESSANDO_TURNO;
+            }
+            else if (tecla == 'z') {
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            break;
+
+        case ESTADO_MENU_POKEMON:
+        case ESTADO_MENU_ITENS:
+            if (tecla == 'z') {
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            break;
+            
+        case ESTADO_PROCESSANDO_TURNO:
+            if (tecla == 'x') {
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            break;
+
+        case ESTADO_FIM_BATALHA:
+            if (tecla == 'x') {
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            break;
+    }
+}
+void desenhar_batalha(void) {
+    // 1. Sempre limpa a tela e desenha o fundo básico
+    
+    // (Desenhe os sprites dos Pokémons ativos aqui usando a função que blindamos anteriormente)
+
+    // 2. Desenha a interface específica do estado atual
+    switch (estado_atual) {
+
+        case ESTADO_INTRO_BATALHA:
+            // Substitua com os dados dinâmicos do seu Pokémon se preferir
+            //desenhar_texto("Wild PIDGEOT", X, Y); 
+            //desenhar_texto("wants to fight!", X, Y + 10);
+            
+            // Dica visual: Desenhar uma setinha piscando no canto inferior direito
+            // para o jogador saber que precisa apertar 'X' para continuar.
+            break;
+        
+        case ESTADO_MENU_PRINCIPAL:
+            
+            // Aqui você desenha os textos "FIGHT", "PKMN", "ITEM", "RUN"
+            desenhar_setinha_menu_principal(opcao_selecionada);
+            break;
+
+        case ESTADO_MENU_LUTAR:
+            // Aqui você desenha a lista de golpes do seu Pokémon ativo
+            desenhar_setinha_menu_lutar(cursor_ataque);
+            break;
+
+        case ESTADO_MENU_POKEMON:
+            // Chame sua função para desenhar a lista/tela dos pokémons do jogador
+            break;
+
+        case ESTADO_MENU_ITENS:
+            // Chame sua função para renderizar a mochila de itens
+            break;
+
+        case ESTADO_PROCESSANDO_TURNO:
+            // Chame sua função que renderiza as mensagens textuais na tela
+            break;
+
+        case ESTADO_FIM_BATALHA:
+            // Desenhe a tela de vitória, XP ou mensagem de fuga
+            break;
+    }
+}
+
+void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual) {
+    int x, y;
+
+    for (int i = 0; i < 4; i++) {
+    
+        switch (i) {
+            case OPCAO_FIGHT:
+                x = SETA_X_COL0; y = SETA_Y_LIN0;
+                break;
+            case OPCAO_PKMN:
+                x = SETA_X_COL1; y = SETA_Y_LIN0;
+                break;
+            case OPCAO_ITENS:
+                x = SETA_X_COL0; y = SETA_Y_LIN1;
+                break;
+            case OPCAO_RUN:
+                x = SETA_X_COL1; y = SETA_Y_LIN1;
+                break;
+            default:
+                continue;
+        }
+
+        if (i == opcao_atual) {
+            desenhar_texto(">", x, y);
+        } else {
+            desenhar_texto(" ", x, y);
+        }
+    }
+}
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
     for (int y = 0; y < 144; y++) {
