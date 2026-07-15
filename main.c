@@ -23,33 +23,28 @@ int main(void)
     Pokemon pokemon_inimigo;
     Pokemon pokemon_red;
     gerar_pokemon(&pokemon_inimigo, 1, 5, &charmander);
-    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);
-    desenhar_sprite_rpg(10, 10, TAM_FRENTE, TAM_FRENTE, pokemon_inimigo.sprites->frente);
-    
-
-    escrever_texto(1, 1, "ola mundo");
-    
+    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);    
     
     while (1) {
     // 1. Lê os controles
     unsigned char tecla = keyboard_input_filtrado();
 
-    // 2. LIMPA o buffer que está no fundo
+    // 2. Limpa o que está no fundo
     clear();
 
-    // 3. DESENHA o cenário de fundo
+    // 3. Desenha o cenário de fundo
     desenhar_pokemons_batalhas(pokemon_red, pokemon_inimigo);
 
-    // 4. DESENHA o texto por cima (Toda vez, em todos os frames!)
+    // 4. Desenha o texto por cima (Toda vez, em todos os frames!)
     //escrever_texto(14, 1, "                 ");
     //escrever_texto(15, 1, "                 ");
     //escrever_texto(16, 1, "                 ");
     
     
-    // 5. APENAS AGORA joga o que desenhou para a tela
+    // 5. Joga o que desenhou para a tela
     inverter_buffers();
 
-    // 6. Espera o tempo do frame (60 FPS)
+    // 6. 60 FPS
     delay(16);
 }
 

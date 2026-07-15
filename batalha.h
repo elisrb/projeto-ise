@@ -9,7 +9,8 @@
 #define TELA_ALTURA_GB  144
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);
-void desenhar_sprite_rpg(int pos_x, int pos_y, int largura, int altura, const unsigned short *sprite);
+void desenhar_pokemon_frente(int pos_x, int pos_y, const unsigned short *sprite);
+void desenhar_pokemon_costas(const unsigned short *sprite);
 void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante);
 
 #endif

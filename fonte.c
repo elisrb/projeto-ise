@@ -217,7 +217,7 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
 }
 
 // Desenha um único caractere de 8x8 na tela VGA (com fundo transparente)
-void desenhar_caractere(int grid_coluna, int grid_linha, char caractere) {
+void desenhar_caractere(int grid_coluna, int grid_linha, CoordenadaGrid coord) {
     // 1. Garante que a escrita está dentro dos limites do grid de 20x18
     if (grid_coluna < 0 || grid_coluna >= MAX_COLUNAS || grid_linha < 0 || grid_linha >= MAX_LINHAS) {
         return; 
@@ -227,7 +227,7 @@ void desenhar_caractere(int grid_coluna, int grid_linha, char caractere) {
     int pixel_x_inicial = OFFSET_X + (grid_coluna * 8);
     int pixel_y_inicial = OFFSET_Y + (grid_linha * 8);
 
-    // Tratamento para o caractere de Espaço ' '
+    /*// Tratamento para o caractere de Espaço ' '
     if (caractere == ' ') {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
@@ -236,11 +236,8 @@ void desenhar_caractere(int grid_coluna, int grid_linha, char caractere) {
             }
         }
         return;
-    }
+    }*/
 
-    // Código original para obter o caractere na folha de sprites (spritesheet)
-    CoordenadaGrid coord = obter_coordenada_caractere(caractere);
-    
     int img_start_x = (coord.coluna * 9); 
     int img_start_y = (coord.linha * 9); 
 
@@ -260,10 +257,24 @@ void desenhar_caractere(int grid_coluna, int grid_linha, char caractere) {
 // Função para desenhar um texto completo (String)
 void escrever_texto(int grid_linha, int grid_coluna, const char *texto) {
     for (int i = 0; texto[i] != '\0'; i++) {
-        desenhar_caractere(grid_coluna + i, grid_linha, texto[i]);
+        desenhar_caractere(grid_coluna + i, grid_linha, obter_coordenada_caractere(texto[i]));
     }
 }
 
+void imprimir_caixa_dialogo() {
+    desenhar_caractere(0, 12, obter_coordenada_borda("canto_sup_esq"));
+    desenhar_caractere(19, 12, obter_coordenada_borda("canto_sup_dir"));
+    desenhar_caractere(0, 17, obter_coordenada_borda("canto_inf_esq"));
+    desenhar_caractere(19, 17, obter_coordenada_borda("canto_inf_dir"));
+    for (int i = 13; i < 17; i++) {
+        desenhar_caractere(0, i, obter_coordenada_borda("borda_vertical"));
+        desenhar_caractere(19, i, obter_coordenada_borda("borda_vertical"));
+    }
+    for (int i = 1; i < 19; i++) {
+        desenhar_caractere(i, 12, obter_coordenada_borda("borda_horizontal"));
+        desenhar_caractere(i, 17, obter_coordenada_borda("borda_horizontal"));
+    }
+}
 
 
 void escrever_texto_progressivo(int caixa_x,int caixa_y,const char *texto,int tempo){

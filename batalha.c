@@ -3,6 +3,7 @@
 #include "perifericos_sdl.h"
 #include "pokemons.h"
 #include "sprites/telas_batalha.h"
+#include "fonte.h"
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
     for (int y = 0; y < 144; y++) {
@@ -20,32 +21,60 @@ void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
     }
 }
 
-void desenhar_sprite_rpg(int pos_x, int pos_y, int largura, int altura, const unsigned short *sprite) {
-    for (int y = 0; y < altura; y++) {
-        for (int x = 0; x < largura; x++) {
-            // Calcula a posição real do pixel na tela VGA
+void desenhar_pokemon_frente(int pos_x, int pos_y, const unsigned short *sprite) {
+    for (int y = 0; y < 40; y++) {
+        for (int x = 0; x < 40; x++) {
+            // posição do pixel na tela
             int vga_x = OFFSET_X + pos_x + x;
             int vga_y = OFFSET_Y + pos_y + y;
 
-            // Garante que não vai desenhar fora dos limites físicos do Game Boy (160x144)
+            // checa se não ultrapassa o tamanho da tela
             if (pos_x + x >= 0 && pos_x + x < TELA_LARGURA_GB &&
                 pos_y + y >= 0 && pos_y + y < TELA_ALTURA_GB) {
                 
-                // Pega a cor do pixel atual da matriz do sprite
-                unsigned short cor_pixel = sprite[y * largura + x];
+                // cor do pixel atual da matriz do sprite
+                unsigned short cor_pixel = sprite[y * 40 + x];
 
-                // 0xFBE5 é a cor rosa usada geralmente como fundo transparente.
-                // Se o seu sprite usar outra cor de transparência (como verde puro 0x07E0 ou preto 0x0000), altere aqui.
-                if (cor_pixel != 0xFBE5) {
-                    write_pixel(vga_x, vga_y, cor_pixel);
-                }
+                write_pixel(vga_x, vga_y, cor_pixel);
             }
         }
     }
 }
 
+void desenhar_pokemon_costas(const unsigned short *sprite) {
+    for (int y = 0; y < 32; y++) {
+        for (int x = 0; x < 32; x++) {
+            // posição do pixel na tela
+            int vga_x = OFFSET_X + 8 + (x*2);
+            int vga_y = OFFSET_Y + 40 + (y*2);
+
+            // checa se não ultrapassa o tamanho da tela
+            if (8 + (x*2) >= 0 && 8 + (x*2) + 1 < TELA_LARGURA_GB &&
+                40 + (y*2) >= 0 && 40 + (y*2) + 1 < 97) {
+                
+                // cor do pixel atual da matriz do sprite
+                unsigned short cor_pixel = sprite[y * 32 + x];
+
+            // quadruplica o tamanho do pixel
+            write_pixel(vga_x, vga_y, cor_pixel);
+            write_pixel(vga_x + 1, vga_y, cor_pixel);
+            write_pixel(vga_x, vga_y + 1, cor_pixel);
+            write_pixel(vga_x + 1, vga_y + 1, cor_pixel);
+            }
+        }
+    }
+}
+
+void desenhar_dialogo_batalhas() {
+    imprimir_caixa_dialogo();
+    desenhar_caractere(8, 12, obter_coordenada_borda("canto_sup_esq"));
+    desenhar_caractere(8, 17, obter_coordenada_borda("canto_inf_esq"));
+    desenhar_caractere(8, 13, obter_coordenada_borda("borda_vertical"));
+}
+
 void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante){
     desenhar_tela_gameboy(menu_batalha);
-    desenhar_sprite_rpg(10, 90, TAM_COSTAS, TAM_COSTAS, red.sprites->costas);
-    desenhar_sprite_rpg(90, 10, TAM_FRENTE, TAM_FRENTE, desafiante.sprites->frente);
+    desenhar_pokemon_costas(red.sprites->costas);
+    desenhar_pokemon_frente(100, 16, desafiante.sprites->frente);
+    desenhar_dialogo_batalhas();
 }

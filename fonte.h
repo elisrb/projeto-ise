@@ -16,8 +16,9 @@ typedef struct {
 // Protótipos das funções implementadas no seu .c
 CoordenadaGrid obter_coordenada_borda(char* str);
 CoordenadaGrid obter_coordenada_caractere(char c);
-void desenhar_caractere(int tela_x, int tela_y, char caractere);
+void desenhar_caractere(int tela_x, int tela_y, CoordenadaGrid coord);
 void escrever_texto(int caixa_x, int caixa_y, const char *texto);
 void escrever_texto_progressivo(int caixa_x,int caixa_y,const char *texto,int tempo);
+void imprimir_caixa_dialogo();
 
 #endif
