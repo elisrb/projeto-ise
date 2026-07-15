@@ -6,11 +6,6 @@
 // BANCO DE DADOS ESTÁTICO (Escondido dentro do .c para proteção de dados)
 // ============================================================================
 
-typedef struct {
-    char nome[20];
-    int dano_base;
-    int pp_max;
-} InfoAtaque;
 
 // Tabela de propriedades estáticas dos ataques
 const InfoAtaque banco_ataques[] = {
@@ -22,15 +17,6 @@ const InfoAtaque banco_ataques[] = {
     [ATK_GUST]         = {"GUST",         40, 35},
     [ATK_QUICK_ATTACK] = {"QUICK ATTACK", 40, 30}
 };
-
-typedef struct {
-    char nome[20];
-    int base_hp;
-    int base_atk;
-    int base_def;
-    int base_vel;
-    int ataques_iniciais[2]; // IDs dos ataques que ele já carrega ao nascer
-} EspecieBase;
 
 // Tabela com os Status Base originais do Game Boy (RGB)
 const EspecieBase banco_especies[] = {
@@ -63,7 +49,7 @@ static void aprender_ataque_por_id(Pokemon *pkmn, int id_ataque) {
     pkmn->qtd_golpes++;
 }
 
-void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, const unsigned short *sp_frente, const unsigned short *sp_costas) {
+void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon sprite) {
     EspecieBase base = banco_especies[id_especie];
     
     pkmn->id_especie = id_especie;
@@ -79,8 +65,7 @@ void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, const unsigned shor
     pkmn->qtd_golpes = 0;
     strcpy(pkmn->nome, base.nome);
     
-    pkmn->sprite_frente = sp_frente;
-    pkmn->sprite_costas = sp_costas;
+    pkmn->sprites = &sprite;
     
     // Atribui os dois golpes iniciais da espécie automaticamente
     aprender_ataque_por_id(pkmn, base.ataques_iniciais[0]);

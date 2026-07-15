@@ -1,74 +1,57 @@
 #include <stdio.h>
+
 #include "perifericos_sdl.h"
 #include "fonte.h"
-#include "personagem.h"
-#include "sprites/sprites.h"
-#include "sprites/fundos.h"
-#include "sprites/colisao.h"
-#include "pokemons.h"
+#include "sprites/telas_batalha.h"
 #include "batalha.h"
+#include "pokemons.h"
+#include "sprites/poke_sprites.h"
 
-int main() {
-    Jogador player;
-    // 1. Inicializa os componentes de vídeo/teclado (mmap na placa ou janela SDL no simulador)
-    if (hw_init() != 0) {
-        printf("Falha ao inicializar o hardware da DE1-SoC.\n");
+
+
+int main(void)
+{
+    if (hw_init() != 0)
+    {
+        printf("Erro ao iniciar SDL.\n");
         return 1;
     }
-    
-    // Inicializa o sistema de double buffering da VGA
+
     inicializar_double_buffering();
 
-    // 2. Configura as dimensões E AS MATRIZES DE COLISÃO dos cenários
-    cidade.largura = 320; 
-    cidade.altura = 288;
-    cidade.mapa_colisao = (const Terreno *)cidade_colisao; // <-- VINCULA A COLISÃO DA CIDADE
-
-    rota1.largura = 320;  
-    rota1.altura = 576;
-    rota1.mapa_colisao = (const Terreno *)rota1_colisao;   // <-- VINCULA A COLISÃO DA ROTA 1
-    
-    // Se for testar as casas ou lab depois, basta fazer o mesmo:
-    // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const Terreno *)casa1_colisao;
-
-    // 3. Carrega o cenário inicial (Cidade de Pallet)
-    carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
-
-    // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
-    start_player(&player, 36, 96, BAIXO);
-
-    printf("Teste do motor de jogo com COLISÕES ativas!\n");
-    printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
-
-    // 5. Loop Principal do Jogo
     clear();
+    Pokemon pokemon_inimigo;
+    gerar_pokemon(&pokemon_inimigo, 0, 5, bulbasaur);
+    
+
+    escrever_texto(1, 1, "ola mundo");
+    desenhar_tela_gameboy(wants_to_fight);
+    
     while (1) {
-        // A. Limpa o buffer dos comandos de desenho
+    // 1. Lê os controles
+    unsigned char tecla = keyboard_input_filtrado();
 
-        // B. Lê a tecla e processa o movimento (agora checando colisão internamente no personagem.c)
-        unsigned char tecla = keyboard_input_filtrado();
-        mover_jogador(&player, tecla);
+    // 2. LIMPA o buffer que está no fundo
+    clear();
 
-        // C. Atualiza a posição da câmera para seguir o jogador de acordo com o tamanho dinâmico (160x144 ou 320x240)
-        atualizar_camera(player.x, player.y);
+    // 3. DESENHA o cenário de fundo
+    desenhar_tela_gameboy(wants_to_fight);
+    //desenhar_pokemons_batalhas(pokemon_inimigo);
 
-        // D. Atualiza a lógica de animação das pernas do Red
-        atualizar_animacao_jogador(&player);
+    // 4. DESENHA o texto por cima (Toda vez, em todos os frames!)
+    escrever_texto(14, 1, "                 ");
+    escrever_texto(15, 1, "                 ");
+    escrever_texto(16, 1, "                 ");
+    
+    
+    // 5. APENAS AGORA joga o que desenhou para a tela
+    inverter_buffers();
 
-        // E. Desenha a parte visível do cenário de fundo baseado na câmera e na moldura centralizada
-        desenhar_cenario();
+    // 6. Espera o tempo do frame (60 FPS)
+    delay(16);
+}
 
-        // F. Desenha o jogador por cima do cenário aplicando o posicionamento correto da janela
-        desenhar_jogador(camera_x, camera_y, &player);
-
-        // G. Realiza a troca dos buffers da VGA sem screen tearing
-        inverter_buffers();
-
-        // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
-        delay(16);
-    }
-
-    // Código de encerramento caso o loop termine
     hw_cleanup();
+
     return 0;
 }

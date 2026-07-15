@@ -217,20 +217,28 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
 }
 
 // Desenha um único caractere de 8x8 na tela VGA (com fundo transparente)
-void desenhar_caractere(int tela_x, int tela_y, char caractere) {
-    
-    // Se for o caractere de espaço, desenha o bloco 8x8 preenchido com 0xFF5F
+void desenhar_caractere(int grid_coluna, int grid_linha, char caractere) {
+    // 1. Garante que a escrita está dentro dos limites do grid de 20x18
+    if (grid_coluna < 0 || grid_coluna >= MAX_COLUNAS || grid_linha < 0 || grid_linha >= MAX_LINHAS) {
+        return; 
+    }
+
+    // 2. Calcula a posição real em pixels (VGA) baseada na célula do grid e nos offsets
+    int pixel_x_inicial = OFFSET_X + (grid_coluna * 8);
+    int pixel_y_inicial = OFFSET_Y + (grid_linha * 8);
+
+    // Tratamento para o caractere de Espaço ' '
     if (caractere == ' ') {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
-                // Desenha diretamente todos os pixels da matriz 'espaco' na tela
-                write_pixel(tela_x + x, tela_y + y, espaco[y][x]);
+                // Desenha o espaço respeitando as coordenadas calculadas
+                write_pixel(pixel_x_inicial + x, pixel_y_inicial + y, espaco[y][x]);
             }
         }
-        return; // Finaliza aqui para o espaço
+        return;
     }
 
-    // Código original para todos os outros caracteres normais:
+    // Código original para obter o caractere na folha de sprites (spritesheet)
     CoordenadaGrid coord = obter_coordenada_caractere(caractere);
     
     int img_start_x = (coord.coluna * 9); 
@@ -240,53 +248,38 @@ void desenhar_caractere(int tela_x, int tela_y, char caractere) {
         for (int x = 0; x < 8; x++) {
             unsigned short cor_pixel = imagem_data[img_start_y + y][img_start_x + x];
             
-            // 0xFBE5 é o rosa de fundo da imagem original
+            // 0xFBE5 é o rosa de fundo transparente da imagem original
             if (cor_pixel != 0xFBE5) {
-                write_pixel(tela_x + x, tela_y + y, cor_pixel);
+                // Desenha na tela mapeada diretamente para o grid centralizado
+                write_pixel(pixel_x_inicial + x, pixel_y_inicial + y, cor_pixel);
             }
         }
     }
 }
 
 // Função para desenhar um texto completo (String)
-void desenhar_texto(int tela_x, int tela_y, const char *texto) {
-    int i = 0;
-    while (texto[i] != '\0') {
-        // Desenha o caractere atual
-        desenhar_caractere(tela_x + (i * 8), tela_y, texto[i]); // Avança 8 pixels por letra
-        i++;
+void escrever_texto(int grid_linha, int grid_coluna, const char *texto) {
+    for (int i = 0; texto[i] != '\0'; i++) {
+        desenhar_caractere(grid_coluna + i, grid_linha, texto[i]);
     }
 }
 
-void escrever_texto_grid_rpg(int coluna, int linha, const char *texto, int tempo_letra) {
-    // Garante que as coordenadas da grade estejam dentro dos limites (20x18)
-    if (coluna < 0 || coluna >= 20 || linha < 0 || linha >= 18) {
-        return; 
-    }
 
-    // Transforma a coordenada da grade (coluna/linha) para pixels reais do Game Boy (multiplicando por 8)
-    // E soma os offsets de centralização na tela VGA (OFFSET_X e OFFSET_Y)
-    int pixel_x_inicial = OFFSET_X + (coluna * 8);
-    int pixel_y_inicial = OFFSET_Y + (linha * 8);
 
-    int i = 0;
-    while (texto[i] != '\0') {
-        // Calcula a posição do caractere atual avançando 8 pixels por letra
-        int pixel_x_atual = pixel_x_inicial + (i * 8);
+void escrever_texto_progressivo(int caixa_x,int caixa_y,const char *texto,int tempo){
+    char buffer[400];
 
-        // Se o texto for longo demais e for passar da largura da tela (coluna 19), interrompe para não quebrar o layout
-        if (pixel_x_atual >= (OFFSET_X + 160)) {
-            break; 
-        }
+    int tamanho = strlen(texto);
 
-        // Desenha o caractere diretamente na coordenada centralizada
-        desenhar_caractere(pixel_x_atual, pixel_y_inicial, texto[i]);
-        
-        // Faz a pausa do efeito de RPG
-        if (tempo_letra > 0) {
-            delay(tempo_letra);
-        }
+    for(int i = 0; i < tamanho; i++)
+    {
+        strncpy(buffer,texto,i+1);
+        buffer[i+1]='\0';
 
-        i++;
+        escrever_texto(caixa_x,caixa_y,buffer);
+
+        inverter_buffers();
+
+        delay(tempo);
     }
 }

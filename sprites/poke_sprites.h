@@ -1,9 +1,12 @@
 #ifndef POKE_SPRITES_H
 #define POKE_SPRITES_H
 
+#define TAM_FRENTE 40
+#define TAM_COSTAS 32
+
 typedef struct {
-    const unsigned short frente[40][40];
-    const unsigned short costas[32][32];
+    const unsigned short *frente; 
+    const unsigned short *costas; 
 } SpritePokemon;
 
 extern SpritePokemon charmander;
