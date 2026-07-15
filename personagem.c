@@ -4,7 +4,7 @@
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
 #include <stdlib.h>
-#include<stdio.h>
+//#include<stdio.h> // para o printf de debug
 
 int camera_x = 0;
 int camera_y = 0;
@@ -138,14 +138,14 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
     switch(resultado_terreno) {
         case LIVRE:
-            printf("LIVRE\n");
+            //printf("LIVRE\n");
             player->destino_x = prox_x;
             player->destino_y = prox_y;
             player->movendo = 1;
             break;
 
         case GRAMA:
-            printf("GRAMA\n");
+            //printf("GRAMA\n");
             // sorteio de combate aleatório, se não:
             player->destino_x = prox_x;
             player->destino_y = prox_y;
@@ -153,7 +153,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
             break;
 
         case PORTA:
-            printf("PORTA\n");
+            //printf("PORTA\n");
 
             /*// loop inteiro de desenhar o próximo frame antes de entrar na porta
             atualizar_camera(prox_x, prox_y);
@@ -165,9 +165,9 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
             for (int i = 0; i < cenario_atual->qtd_portas; i++) {
                 Porta porta_teste = cenario_atual->portas[i];
-                printf("Checando porta %d: (%d, %d) = (%d, %d)\n", i, porta_teste.x, porta_teste.y, prox_x/16, prox_y/16);
+                //printf("Checando porta %d: (%d, %d) = (%d, %d)\n", i, porta_teste.x, porta_teste.y, prox_x/16, prox_y/16);
                 if (prox_x/16 == porta_teste.x && prox_y/16 == porta_teste.y) {
-                    printf("Encontrada porta para %p (%d, %d)\n", porta_teste.destino, porta_teste.novo_x, porta_teste.novo_y);
+                    //printf("Encontrada porta para %p (%d, %d)\n", porta_teste.destino, porta_teste.novo_x, porta_teste.novo_y);
                     delay(100);
                     cenario_atual = porta_teste.destino;
                     player->x = (porta_teste.novo_x)*16;
@@ -180,7 +180,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
             break;
         
         case OBSTACULO:
-            printf("OBSTACULO\n");
+            //printf("OBSTACULO\n");
             // não faz nada
             break;
     }
