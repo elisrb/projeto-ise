@@ -7,8 +7,6 @@
 #include "pokemons.h"
 #include "sprites/poke_sprites.h"
 
-
-
 int main(void)
 {
     if (hw_init() != 0)
@@ -19,37 +17,33 @@ int main(void)
 
     inicializar_double_buffering();
 
-    clear();
     Pokemon pokemon_inimigo;
     Pokemon pokemon_red;
     gerar_pokemon(&pokemon_inimigo, 1, 5, &charmander);
-    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);    
-    
+    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);
+
+    printf("Teste de batalha iniciado.\n");
+
+    unsigned char tecla_anterior = 0;
+
     while (1) {
-    // 1. Lê os controles
-    unsigned char tecla = keyboard_input();
+        unsigned char tecla_atual = keyboard_input();
 
-    // 2. Limpa o que está no fundo
-    clear();
+        // Só processa no frame em que a tecla MUDOU pra um valor novo
+        // e diferente de zero -- evita repetir a ação todo frame
+        // enquanto a tecla fica segurada (menu não é movimento contínuo)
+        if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
+            processar_input_batalha(tecla_atual);
+        }
+        tecla_anterior = tecla_atual;
 
-    // 3. Desenha o cenário de fundo
-    desenhar_batalha(pokemon_red, pokemon_inimigo);
-    
-    // 4. Desenha o texto por cima (Toda vez, em todos os frames!)
-    //escrever_texto(14, 1, "                 ");
-    //escrever_texto(15, 1, "                 ");
-    //escrever_texto(16, 1, "                 ");
-    
-    
-    // 5. Joga o que desenhou para a tela
-    inverter_buffers();
+        clear();
+        desenhar_batalha(pokemon_red, pokemon_inimigo);
+        inverter_buffers();
 
-    if (tecla != 0x00) processar_input_batalha(tecla);
-    // 6. 60 FPS
-    delay(16);
-}
+        delay(16);
+    }
 
     hw_cleanup();
-
     return 0;
 }

@@ -255,9 +255,9 @@ void desenhar_caractere(int grid_coluna, int grid_linha, CoordenadaGrid coord) {
 }
 
 // Função para desenhar um texto completo (String)
-void escrever_texto(int grid_linha, int grid_coluna, const char *texto) {
+void escrever_texto(int caixa_x, int caixa_y, const char *texto) {
     for (int i = 0; texto[i] != '\0'; i++) {
-        desenhar_caractere(grid_coluna + i, grid_linha, obter_coordenada_caractere(texto[i]));
+        desenhar_caractere(caixa_x + i, caixa_y, obter_coordenada_caractere(texto[i]));
     }
 }
 
