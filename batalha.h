@@ -36,6 +36,10 @@ extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
 extern int cursor_ataque; // De 0 a 3 para mapear os 4 golpes
 
+void processar_input_batalha(char tecla);
+void desenhar_batalha(void);
+void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
+
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);
 void desenhar_pokemon_frente(int pos_x, int pos_y, const unsigned short *sprite);
 void desenhar_pokemon_costas(const unsigned short *sprite);
