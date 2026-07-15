@@ -67,16 +67,6 @@ void completar_fundo_batalha() {
             write_pixel(x, y, 0xF75F);
         }
     }
-
-    // completa espaço extra na vida do pokemon do jogador
-    for (int y = OFFSET_Y + 80; y < OFFSET_Y + 88; y++) { 
-        for (int x = OFFSET_X + 88; x < OFFSET_X + 112; x++){
-            write_pixel(x, y, 0xF75F);
-        }
-        for (int x = OFFSET_X + 120; x < OFFSET_X + 144; x++){
-            write_pixel(x, y, 0xF75F);
-        }
-    }
 }
 
 void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
@@ -97,12 +87,16 @@ void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
     escrever_texto(1, 4, ":L");
 
     char tmp[4];
+
     snprintf(tmp, sizeof(tmp), "%d", red.nivel);
     escrever_texto(8, 16, tmp);
     snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
     escrever_texto(1, 6, tmp);
+
     snprintf(tmp, sizeof(tmp), "%d", red.hp_atual);
-    escrever_texto(10, 12, tmp);
+    escrever_texto(10, 11, "   ");
+    escrever_texto(10, 11, tmp);
     snprintf(tmp, sizeof(tmp), "%d", red.hp_max);
-    escrever_texto(10, 16, tmp);
+    escrever_texto(10, 15, "   ");
+    escrever_texto(10, 15, tmp);
 }
