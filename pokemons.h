@@ -84,7 +84,7 @@ extern const EspecieBase banco_especies[];
 // ==========================================
 
 // Inicializa e escala um Pokémon do zero baseado no banco de dados e nível
-void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon sprite);
+void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon *sprite);
 
 // Sobe 1 nível do Pokémon e recalcula os status mantendo a proporção de dano sofrido
 void subir_nivel(Pokemon *pkmn);

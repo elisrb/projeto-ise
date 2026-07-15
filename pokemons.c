@@ -49,7 +49,7 @@ static void aprender_ataque_por_id(Pokemon *pkmn, int id_ataque) {
     pkmn->qtd_golpes++;
 }
 
-void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon sprite) {
+void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon *sprite) {
     EspecieBase base = banco_especies[id_especie];
     
     pkmn->id_especie = id_especie;
@@ -65,7 +65,7 @@ void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon sprit
     pkmn->qtd_golpes = 0;
     strcpy(pkmn->nome, base.nome);
     
-    pkmn->sprites = &sprite;
+    pkmn->sprites = sprite;
     
     // Atribui os dois golpes iniciais da espécie automaticamente
     aprender_ataque_por_id(pkmn, base.ataques_iniciais[0]);

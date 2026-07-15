@@ -1,9 +1,8 @@
-#define OFFSET_X 80
-#define OFFSET_Y 48
 
 #include "batalha.h"
 #include "perifericos_sdl.h"
 #include "pokemons.h"
+#include "sprites/telas_batalha.h"
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
     for (int y = 0; y < 144; y++) {
@@ -45,6 +44,8 @@ void desenhar_sprite_rpg(int pos_x, int pos_y, int largura, int altura, const un
     }
 }
 
-void desenhar_pokemons_batalhas(Pokemon desafiante){
+void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante){
+    desenhar_tela_gameboy(menu_batalha);
+    desenhar_sprite_rpg(10, 90, TAM_COSTAS, TAM_COSTAS, red.sprites->costas);
     desenhar_sprite_rpg(90, 10, TAM_FRENTE, TAM_FRENTE, desafiante.sprites->frente);
 }
