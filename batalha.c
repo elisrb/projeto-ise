@@ -1,21 +1,20 @@
-
 #include "batalha.h"
 #include "perifericos_sdl.h"
 #include "pokemons.h"
 #include "sprites/telas_batalha.h"
 #include "fonte.h"
+#include <stdio.h>
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
     for (int y = 0; y < 144; y++) {
         for (int x = 0; x < 160; x++) {
-            // Pega a cor do pixel correspondente na matriz
+            // cor do pixel correspondente
             unsigned short cor = tela[y][x];
             
-            // Calcula a coordenada final na VGA somando o offset de centralização
+            // coordenada final na tela
             int vga_x = OFFSET_X + x;
             int vga_y = OFFSET_Y + y;
             
-            // Plota o pixel na tela
             write_pixel(vga_x, vga_y, cor);
         }
     }
@@ -25,12 +24,11 @@ void desenhar_pokemon_frente(const unsigned short *sprite) {
     for (int y = 0; y < 40; y++) {
         for (int x = 0; x < 40; x++) {
             // posição do pixel na tela
-            int vga_x = OFFSET_X + 100 + x;
+            int vga_x = OFFSET_X + 104 + x;
             int vga_y = OFFSET_Y + 16 + y;
 
             // cor do pixel atual da matriz do sprite
             unsigned short cor_pixel = sprite[y * 40 + x];
-
             write_pixel(vga_x, vga_y, cor_pixel);
         }
     }
@@ -63,23 +61,48 @@ void desenhar_dialogo_batalhas() {
 }
 
 void completar_fundo_batalha() {
-    for (int x = OFFSET_X + 96; x < OFFSET_X + 152; x++){
+    // completa borda do pokemon rival
+    for (int x = OFFSET_X + 96; x < OFFSET_X + 152; x++){ 
         for (int y = OFFSET_Y + 0; y < OFFSET_Y + 56; y++) {
+            write_pixel(x, y, 0xF75F);
+        }
+    }
+
+    // completa espaço extra na vida do pokemon do jogador
+    for (int y = OFFSET_Y + 80; y < OFFSET_Y + 88; y++) { 
+        for (int x = OFFSET_X + 88; x < OFFSET_X + 112; x++){
+            write_pixel(x, y, 0xF75F);
+        }
+        for (int x = OFFSET_X + 120; x < OFFSET_X + 144; x++){
             write_pixel(x, y, 0xF75F);
         }
     }
 }
 
-void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante){
+void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
     desenhar_tela_gameboy(menu_batalha);
+
     completar_fundo_batalha();
     desenhar_pokemon_costas(red.sprites->costas);
     desenhar_pokemon_frente(desafiante.sprites->frente);
     desenhar_dialogo_batalhas();
-}
 
-// A 0 a 56 fundo
-// A 16 a 56 = sprite
-// L 96 a 100 fundo
-// L 100 a 140 = sprite
-// L 140 a 152 fundo
+    escrever_texto(7, 10, "          ");
+    escrever_texto(7, 10, red.nome);
+
+    escrever_texto(0, 1, "          ");
+    escrever_texto(0, 1, desafiante.nome);
+
+    escrever_texto(8, 14, ":L");
+    escrever_texto(1, 4, ":L");
+
+    char tmp[4];
+    snprintf(tmp, sizeof(tmp), "%d", red.nivel);
+    escrever_texto(8, 16, tmp);
+    snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
+    escrever_texto(1, 6, tmp);
+    snprintf(tmp, sizeof(tmp), "%d", red.hp_atual);
+    escrever_texto(10, 12, tmp);
+    snprintf(tmp, sizeof(tmp), "%d", red.hp_max);
+    escrever_texto(10, 16, tmp);
+}
