@@ -1,7 +1,12 @@
 #include <stdio.h>
+
 #include "perifericos_sdl.h"
 #include "fonte.h"
+#include "batalha.h"
+#include "pokemons.h"
 #include "personagem.h"
+#include "sprites/telas_batalha.h"
+#include "sprites/poke_sprites.h"
 #include "sprites/sprites.h"
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
@@ -10,7 +15,7 @@ int main() {
     Jogador player;
     // Inicializa os periféricos (placa ou simulador)
     if (hw_init() != 0) {
-        printf("Falha ao inicializar o hardware da DE1-SoC.\n");
+        printf("Falha ao inicializar periféricos.\n");
         return 1;
     }
     
@@ -23,38 +28,38 @@ int main() {
     // Inicializa o Red no meio da tela olhando para baixo
     start_player(&player, 36, 96, BAIXO);
 
-    printf("Teste do motor de jogo com COLISÕES ativas!\n");
-    printf("Use W, A, S, D ou as Setas do teclado para mover o Red.\n");
+    inicializar_double_buffering();
 
-    // Loop Principal do Jogo
     clear();
+    Pokemon pokemon_inimigo;
+    Pokemon pokemon_red;
+    gerar_pokemon(&pokemon_inimigo, 1, 5, &charmander);
+    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);    
+    
     while (1) {
-        // A. Limpa o buffer dos comandos de desenho
+    // 1. Lê os controles
+    unsigned char tecla = keyboard_input_filtrado();
 
-        // B. Lê a tecla e processa o movimento (agora checando colisão internamente no personagem.c)
-        unsigned char tecla = keyboard_input_filtrado();
-        mover_jogador(&player, tecla);
+    // 2. Limpa o que está no fundo
+    clear();
 
-        // C. Atualiza a posição da câmera para seguir o jogador de acordo com o tamanho dinâmico (160x144 ou 320x240)
-        atualizar_camera(player.x, player.y);
+    // 3. Desenha o cenário de fundo
+    desenhar_pokemons_batalhas(pokemon_red, pokemon_inimigo);
 
-        // D. Atualiza a lógica de animação das pernas do Red
-        atualizar_animacao_jogador(&player);
+    // 4. Desenha o texto por cima (Toda vez, em todos os frames!)
+    //escrever_texto(14, 1, "                 ");
+    //escrever_texto(15, 1, "                 ");
+    //escrever_texto(16, 1, "                 ");
+    
+    
+    // 5. Joga o que desenhou para a tela
+    inverter_buffers();
 
-        // E. Desenha a parte visível do cenário de fundo baseado na câmera e na moldura centralizada
-        desenhar_cenario();
+    // 6. 60 FPS
+    delay(16);
+}
 
-        // F. Desenha o jogador por cima do cenário aplicando o posicionamento correto da janela
-        desenhar_jogador(camera_x, camera_y, &player);
-
-        // G. Realiza a troca dos buffers da VGA sem screen tearing
-        inverter_buffers();
-
-        // H. Controla a taxa de atualização para cravar em aproximadamente 60 FPS
-        delay(16);
-    }
-
-    // Código de encerramento caso o loop termine
     hw_cleanup();
+
     return 0;
 }

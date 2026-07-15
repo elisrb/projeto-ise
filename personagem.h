@@ -38,7 +38,7 @@ typedef struct {
  
     Direcao direcao;
     int movendo;
- 
+    
     int frame_atual;     // frame atual do personagem
     int timer_animacao;  // tempo para o pulo da imagem
  

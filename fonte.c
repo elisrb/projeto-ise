@@ -1,6 +1,7 @@
 #include "fonte.h"
 #include "perifericos_sdl.h"
 #include <string.h>
+#include <stdio.h>
 
 #define IMG_LARGURA 143
 #define IMG_ALTURA  89
@@ -148,7 +149,7 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
     // Números (0-9 estão na Linha 8, começando na Coluna 6)
     else if (c >= '0' && c <= '9') {
         coord.coluna = 6 + (c - '0');
-        coord.linha = 8;
+        coord.linha = 7;
     }
     // Símbolos especiais
     else if (c == ' ') {
@@ -216,22 +217,27 @@ CoordenadaGrid obter_coordenada_caractere(char c) {
 }
 
 // Desenha um único caractere de 8x8 na tela VGA (com fundo transparente)
-void desenhar_caractere(int tela_x, int tela_y, char caractere) {
-    
-    // Se for o caractere de espaço, desenha o bloco 8x8 preenchido com 0xFF5F
+void desenhar_caractere(int grid_coluna, int grid_linha, CoordenadaGrid coord) {
+    // 1. Garante que a escrita está dentro dos limites do grid de 20x18
+    if (grid_coluna < 0 || grid_coluna >= MAX_COLUNAS || grid_linha < 0 || grid_linha >= MAX_LINHAS) {
+        return; 
+    }
+
+    // 2. Calcula a posição real em pixels (VGA) baseada na célula do grid e nos offsets
+    int pixel_x_inicial = OFFSET_X + (grid_coluna * 8);
+    int pixel_y_inicial = OFFSET_Y + (grid_linha * 8);
+
+    /*// Tratamento para o caractere de Espaço ' '
     if (caractere == ' ') {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
-                // Desenha diretamente todos os pixels da matriz 'espaco' na tela
-                write_pixel(tela_x + x, tela_y + y, espaco[y][x]);
+                // Desenha o espaço respeitando as coordenadas calculadas
+                write_pixel(pixel_x_inicial + x, pixel_y_inicial + y, espaco[y][x]);
             }
         }
-        return; // Finaliza aqui para o espaço
-    }
+        return;
+    }*/
 
-    // Código original para todos os outros caracteres normais:
-    CoordenadaGrid coord = obter_coordenada_caractere(caractere);
-    
     int img_start_x = (coord.coluna * 9); 
     int img_start_y = (coord.linha * 9); 
 
@@ -239,20 +245,52 @@ void desenhar_caractere(int tela_x, int tela_y, char caractere) {
         for (int x = 0; x < 8; x++) {
             unsigned short cor_pixel = imagem_data[img_start_y + y][img_start_x + x];
             
-            // 0xFBE5 é o rosa de fundo da imagem original
+            // 0xFBE5 é o rosa de fundo transparente da imagem original
             if (cor_pixel != 0xFBE5) {
-                write_pixel(tela_x + x, tela_y + y, cor_pixel);
+                // Desenha na tela mapeada diretamente para o grid centralizado
+                write_pixel(pixel_x_inicial + x, pixel_y_inicial + y, cor_pixel);
             }
         }
     }
 }
 
 // Função para desenhar um texto completo (String)
-void desenhar_texto(int tela_x, int tela_y, const char *texto) {
-    int i = 0;
-    while (texto[i] != '\0') {
-        // Desenha o caractere atual
-        desenhar_caractere(tela_x + (i * 8), tela_y, texto[i]); // Avança 8 pixels por letra
-        i++;
+void escrever_texto(int grid_linha, int grid_coluna, const char *texto) {
+    for (int i = 0; texto[i] != '\0'; i++) {
+        desenhar_caractere(grid_coluna + i, grid_linha, obter_coordenada_caractere(texto[i]));
+    }
+}
+
+void imprimir_caixa_dialogo() {
+    desenhar_caractere(0, 12, obter_coordenada_borda("canto_sup_esq"));
+    desenhar_caractere(19, 12, obter_coordenada_borda("canto_sup_dir"));
+    desenhar_caractere(0, 17, obter_coordenada_borda("canto_inf_esq"));
+    desenhar_caractere(19, 17, obter_coordenada_borda("canto_inf_dir"));
+    for (int i = 13; i < 17; i++) {
+        desenhar_caractere(0, i, obter_coordenada_borda("borda_vertical"));
+        desenhar_caractere(19, i, obter_coordenada_borda("borda_vertical"));
+    }
+    for (int i = 1; i < 19; i++) {
+        desenhar_caractere(i, 12, obter_coordenada_borda("borda_horizontal"));
+        desenhar_caractere(i, 17, obter_coordenada_borda("borda_horizontal"));
+    }
+}
+
+
+void escrever_texto_progressivo(int caixa_x,int caixa_y,const char *texto,int tempo){
+    char buffer[400];
+
+    int tamanho = strlen(texto);
+
+    for(int i = 0; i < tamanho; i++)
+    {
+        strncpy(buffer,texto,i+1);
+        buffer[i+1]='\0';
+
+        escrever_texto(caixa_x,caixa_y,buffer);
+
+        inverter_buffers();
+
+        delay(tempo);
     }
 }
