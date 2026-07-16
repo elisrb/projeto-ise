@@ -58,6 +58,7 @@ int main() {
     unsigned char tecla_atual = 0;
 
     // menu inicial
+    clear();
     while (tecla_atual != 0x5A) { // 0x5A = Enter
         completar_fundo_batalha();
         imprimir_caixa_dialogo();
@@ -67,9 +68,11 @@ int main() {
         inverter_buffers();
         delay(16);
     }
-
+    clear();
     // loop do jogo
     while (1) {
+        clear(); // <--- ESSA LINHA PRECISA ESTAR AQUI para limpar o buffer antes de desenhar!
+
         tecla_atual = keyboard_input_filtrado();
 
         switch (batalha_on) {
@@ -113,8 +116,8 @@ int main() {
 
         tecla_anterior = tecla_atual;
 
-        inverter_buffers();
-        delay(16);
+        inverter_buffers(); // Joga o buffer desenhado (e limpo) para a tela
+        delay(32);
     }
 
     hw_cleanup();
