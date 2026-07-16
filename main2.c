@@ -34,7 +34,7 @@ int main() {
     // casa1.largura = 128; casa1.altura = 128; casa1.mapa_colisao = (const Terreno *)casa1_colisao;
 
     // 3. Carrega o cenário inicial (Cidade de Pallet)
-    carregar_cenario(&cidade, (const unsigned short *)cidade_fundo);
+    cenario_atual = &cidade;
 
     // 4. Inicializa o Red no centro da tela (coordenadas do mundo) olhando para baixo
     start_player(&player, 36, 96, BAIXO);
