@@ -132,6 +132,7 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
         case ESTADO_INTRO_BATALHA:
             desenhar_tela_gameboy(wants_to_fight);
             escrever_texto(11, 10, "       ");
+            escrever_texto(3, 14, desafiante.nome);
             break;
         
         case ESTADO_MENU_PRINCIPAL:
