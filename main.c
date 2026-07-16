@@ -18,6 +18,7 @@ int main() {
     Pokemon pokemon_red;
     Pokemon pokemon_selvagem;
     Item pocao = {"POTION", 1};
+    Item poke_b = {"POKE BALL", 10};
 
     // o jogo começa na casa do jogador
     cenario_atual = &casa2;
@@ -39,6 +40,7 @@ int main() {
     // inicializa os itens do jogador
     capturar_pokemon(&player, &pokemon_red);
     pegar_item(&player, &pocao);
+    pegar_item(&player, &poke_b);
     
     // Inicializa os periféricos (placa ou simulador)
     if (hw_init() != 0) {
@@ -57,7 +59,6 @@ int main() {
 
     // menu inicial
     while (tecla_atual != 0x5A) { // 0x5A = Enter
-        clear();
         completar_fundo_batalha();
         imprimir_caixa_dialogo();
         escrever_texto(1, 13, "Pressione Enter");
