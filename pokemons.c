@@ -156,7 +156,7 @@ static void executar_ataque(Pokemon *atacante, Pokemon *defensor, int slot_ataqu
 }
 
 // FUNÇÃO PRINCIPAL: PROCESSA O TURNO INTEIRO
-void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon *selvagem, AcaoBatalha acao_selvagem) {
+char* processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon *selvagem, AcaoBatalha acao_selvagem) {
     
     // 1. Tratamento de Fuga (Fugir tem prioridade máxima antes dos ataques)
     if (acao_jogador == ACAO_FUGIR) {
@@ -164,14 +164,15 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         if (jogador->velocidade >= selvagem->velocidade) {
             printf("Voce fugiu com sucesso!\n");
             batalha_on = 3;
+            return("Voce fugiu!");
         } else {
             printf("Nao conseguiu fugir!\n");
             // Como o jogador falhou em fugir, o selvagem ataca livremente
             if (acao_selvagem <= ACAO_ATACAR_SLOT_3) {
                 executar_ataque(selvagem, jogador, (int)acao_selvagem);
             }
+            return("Voce nao fugiu!");
         }
-        return; 
     }
     
     // 2. Determinar Prioridade de Ataque
@@ -210,6 +211,7 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         if (selvagem->hp_atual > 0 && acao_selvagem <= ACAO_ATACAR_SLOT_3) {
             executar_ataque(selvagem, jogador, (int)acao_selvagem);
         }
+        return("Voce ataca antes!");
     } else {
         // Selvagem bate primeiro
         if (acao_selvagem <= ACAO_ATACAR_SLOT_3) executar_ataque(selvagem, jogador, (int)acao_selvagem);
@@ -217,5 +219,6 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         if (jogador->hp_atual > 0 && acao_jogador <= ACAO_ATACAR_SLOT_3) {
             executar_ataque(jogador, selvagem, (int)acao_jogador);
         }
+        return("Voce ataca depois!");
     }
 }

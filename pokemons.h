@@ -99,6 +99,6 @@ void subir_nivel(Pokemon *pkmn);
 // Calcula o dano de forma simplificada baseada na fórmula oficial de Gen 1
 int calcular_dano(const Pokemon *atacante, const Pokemon *defensor, int indice_ataque);
 
-void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon *selvagem, AcaoBatalha acao_selvagem);
+char *processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon *selvagem, AcaoBatalha acao_selvagem);
 
 #endif // POKEMON_H

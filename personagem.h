@@ -84,6 +84,6 @@ int checar_colisao(int prox_x, int prox_y);
 
 void capturar_pokemon(Jogador *red, Pokemon *pokemon_capturado);
 void pegar_item(Jogador *red, Item *item);
-int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo);
+char *usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo);
 
 #endif // PERSONAGEM_H

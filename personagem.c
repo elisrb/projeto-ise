@@ -329,7 +329,8 @@ int calcular_tentativa_captura(Pokemon *inimigo) {
 }
 
 
-int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
+char* usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
+    char * mensagem = "Voce usou um item!";
     if (indice_item < 0 || indice_item >= red->numero_itens) {
         printf("Erro: Item inválido!\n");
         return 0;
@@ -353,7 +354,8 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
                 pokemon_alvo->hp_atual = pokemon_alvo->hp_max;
             }
             printf("%s foi curado em 20 HP!\n", pokemon_alvo->nome);
-            usou_com_sucesso = 1; 
+            usou_com_sucesso = 1;
+            mensagem = "Voce curou 20 HP!";
         }
     } 
     else if (strcmp(item->nome, "SUPER POTION") == 0) {
@@ -366,6 +368,7 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
             }
             printf("%s foi curado em 50 HP!\n", pokemon_alvo->nome);
             usou_com_sucesso = 1;
+            mensagem = "Voce curou 50 HP!";
         }
     }
     else if (strcmp(item->nome, "POKE BALL") == 0) {
@@ -394,6 +397,7 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
         }
         
         usou_com_sucesso = 1;
+        mensagem = "Voce usou POKEBALL";
     }
     else {
         printf("Esse item não tem um efeito programado ainda.\n");
@@ -411,5 +415,5 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
         }
     }
 
-    return usou_com_sucesso;
+    return mensagem;
 }

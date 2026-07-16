@@ -9,6 +9,7 @@ EstadoBatalha estado_atual = ESTADO_INTRO_BATALHA;
 OpcaoMenu opcao_selecionada = OPCAO_FIGHT;
 int cursor = 0;
 char tmp[6];
+char *mensagem_turno = NULL;
 
 void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafiante, Jogador *player){
     delay(16); // pra não ler a mesma tecla várias vezes
@@ -53,7 +54,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
                     cursor = 0;
                 } 
                 else if (opcao_selecionada == OPCAO_RUN) {
-                    processar_turno_batalha(red, cursor, desafiante, ACAO_FUGIR);
+                    mensagem_turno = processar_turno_batalha(red, cursor, desafiante, ACAO_FUGIR);
                     printf("Correndo da batalha...\n");
 
                     estado_atual = ESTADO_PROCESSANDO_TURNO;
@@ -71,7 +72,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
             else if (tecla == 0x5A) { // X
                 printf("Usando o ataque %d!\n", cursor);
                 AcaoBatalha acao_selvagem = (AcaoBatalha)(rand() % desafiante->qtd_golpes);
-                processar_turno_batalha(red, cursor, desafiante, acao_selvagem);
+                mensagem_turno = processar_turno_batalha(red, cursor, desafiante, acao_selvagem);
                 estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             else if (tecla == 0x1A) { // Z - voltar
@@ -106,7 +107,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
                 estado_atual = ESTADO_MENU_PRINCIPAL;
             }
             else if (tecla == 0x5A) { // X
-                usar_item(player,cursor,red);
+                mensagem_turno = usar_item(player,cursor,red);
                 estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             break;
@@ -118,9 +119,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
             break;
 
         case ESTADO_FIM_BATALHA:
-            if (tecla == 0x5A) { // X
-                estado_atual = ESTADO_MENU_PRINCIPAL;
-            }
+            batalha_on = 3;
             break;
     }
 }
@@ -209,6 +208,10 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
 
         case ESTADO_PROCESSANDO_TURNO:
             escrever_texto(11, 10, "       ");
+            if (mensagem_turno != NULL) {
+                escrever_texto(1, 13, mensagem_turno);
+                delay(500);
+            }
 
             break;
 
