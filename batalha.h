@@ -1,6 +1,7 @@
 #ifndef BATALHA_POKEMON_H
 #define BATALHA_POKEMON_H
 #include "pokemons.h"
+#include "personagem.h"
 
 #define OFFSET_X 80
 #define OFFSET_Y 48
@@ -35,8 +36,8 @@ extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
 extern int cursor_ataque; // De 0 a 3 para mapear os 4 golpes
 
-void processar_input_batalha(unsigned char tecla, Pokemon red);
-void desenhar_batalha(Pokemon red, Pokemon desafiante);
+void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player);
+void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player);
 void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
 void desenhar_setinha_menu_luta(int cursor_atual);
 void desenhar_setinha_menu_itens(int cursor_atual);

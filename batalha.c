@@ -1,6 +1,5 @@
 #include "batalha.h"
 #include "perifericos_sdl.h"
-#include "pokemons.h"
 #include "sprites/telas_batalha.h"
 #include "fonte.h"
 #include <stdio.h>
@@ -10,7 +9,7 @@ OpcaoMenu opcao_selecionada = OPCAO_FIGHT;
 int cursor = 0;
 char tmp[6];
 
-void processar_input_batalha(unsigned char tecla, Pokemon red) {
+void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player) {
     delay(16); // pra não ler a mesma tecla várias vezes
     printf("Tecla pressionada: 0x%02X\n", tecla);
 
@@ -78,10 +77,10 @@ void processar_input_batalha(unsigned char tecla, Pokemon red) {
 
         case ESTADO_MENU_POKEMON:
             if (tecla == 0x1B) { // S - baixo
-                cursor = (cursor + 1) % red.qtd_golpes; // mudar para qtd_pokemons
+                cursor = (cursor + 1) % player.numero_pokemons; 
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // mudar
+                cursor = (cursor + player.numero_pokemons - 1) % player.numero_pokemons; 
             }
             else if (tecla == 0x1A) { // Z
                 estado_atual = ESTADO_MENU_PRINCIPAL;
@@ -94,10 +93,10 @@ void processar_input_batalha(unsigned char tecla, Pokemon red) {
         
         case ESTADO_MENU_ITENS:
             if (tecla == 0x1B) { // S - baixo
-                cursor = (cursor + 1) % red.qtd_golpes; // mudar para qtd_itens
+                cursor = (cursor + 1) % player.numero_itens; 
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // mudar
+                cursor = (cursor + player.numero_itens - 1) % player.numero_itens; 
             }
             else if (tecla == 0x1A) { // Z
                 estado_atual = ESTADO_MENU_PRINCIPAL;
@@ -121,7 +120,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon red) {
             break;
     }
 }
-void desenhar_batalha(Pokemon red, Pokemon desafiante) {
+void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
     // Limpa a tela e desenha o fundo básico
     desenhar_pokemons_batalhas(red, desafiante);
 
@@ -148,7 +147,7 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante) {
             escrever_texto(5, 11, "     ");
 
             if(cursor < red.qtd_golpes) {
-                escrever_texto(2, 10, red.golpes[cursor].nome); // MUDAR PARA TIPO
+                escrever_texto(2, 10, red.golpes[cursor].tipo); 
                 snprintf(tmp, sizeof(tmp), "%d/%d", red.golpes[cursor].pp_atual, red.golpes[cursor].pp_max);
                 escrever_texto(5, 11, tmp);
             }
@@ -177,8 +176,8 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante) {
             escrever_texto(5, 9, "             ");
             escrever_texto(5, 10, "             ");
 
-            for (int i = 0; i < red.qtd_golpes; i++) { // MUDAR PARA QTD POKEMONS
-                escrever_texto(6, 4 + i, red.golpes[i].nome);
+            for (int i = 0; i < player.numero_pokemons; i++) { 
+                escrever_texto(6, 4 + i, player.pokemons[i].nome);
             }
 
             desenhar_setinha_menu_pkmn(cursor);
@@ -195,9 +194,9 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante) {
             escrever_texto(5, 9, "             ");
             escrever_texto(5, 10, "             ");
 
-            for (int i = 0; i < red.qtd_golpes; i++) { // MUDAR PARA QTD ITENS
-                escrever_texto(6, 4 + i*2, red.golpes[i].nome);
-                snprintf(tmp, sizeof(tmp), "x %d", red.golpes[i].pp_atual); // MUDAR PARA QUANTIDADE DE ITENS
+            for (int i = 0; i < player.numero_itens; i++) { 
+                escrever_texto(6, 4 + i*2, player.bolsa[i].nome);
+                snprintf(tmp, sizeof(tmp), "x %d", player.bolsa[i].quantidade); 
                 escrever_texto(14, 4 + i*2 + 1, tmp);
             }
 

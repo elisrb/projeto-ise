@@ -2,6 +2,7 @@
 #define PERSONAGEM_H
 
 #include "sprites/fundos.h"
+#include "pokemons.h"
 
 // --- CONFIGURAÇÕES DO JOGO E SPRITES ---
 #define SPRITE_TAMANHO 16
@@ -80,10 +81,8 @@ void desenhar_cenario();
 
 int checar_colisao(int prox_x, int prox_y);
 
-void capturar_pokemon(Jogador *red, Pokemon pokemon_capturado);
-
-void pegar_item(Jogador *red, Item item);
-
+void capturar_pokemon(Jogador *red, Pokemon *pokemon_capturado);
+void pegar_item(Jogador *red, Item *item);
 int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo);
 
 #endif // PERSONAGEM_H

@@ -28,6 +28,8 @@ void start_player(Jogador *player, int dx, int dy, int dir) {
     player->timer_animacao = 0;
     player->timer_movimento = 0;
     player->movendo_anterior = 0;
+    player->numero_itens = 0;
+    player->numero_pokemons = 0;
 }
 
 void atualizar_animacao_jogador(Jogador *player) {
@@ -268,19 +270,20 @@ int checar_colisao(int prox_x, int prox_y) {
     return cenario_atual->mapa_colisao[indice];
 }
 
-void capturar_pokemon(Jogador *red, Pokemon pokemon_capturado) {
-    if (red->numero_pokemons >= 5) {
+void capturar_pokemon(Jogador *red, Pokemon *pokemon_capturado) {
+    if (red->numero_pokemons >= 6) {
         return;
     }
 
-    red->pokemons[red->numero_pokemons] = pokemon_capturado;
+    // Copia o conteúdo apontado por pokemon_capturado para a struct dentro do vetor
+    red->pokemons[red->numero_pokemons] = *pokemon_capturado;
     red->numero_pokemons += 1;
 }
 
-void pegar_item(Jogador *red, Item item) {
+void pegar_item(Jogador *red, Item *item) {
     for (int i = 0; i < red->numero_itens; i++) {
-        if (strcmp(red->bolsa[i].nome, item.nome) == 0) {
-            red->bolsa[i].quantidade += item.quantidade;
+        if (strcmp(red->bolsa[i].nome, item->nome) == 0) {
+            red->bolsa[i].quantidade += item->quantidade;
             return;
         }
     }
@@ -288,8 +291,8 @@ void pegar_item(Jogador *red, Item item) {
     if (red->numero_itens < 10) {
         int novo_slot = red->numero_itens;
 
-        strcpy(red->bolsa[novo_slot].nome, item.nome);
-        red->bolsa[novo_slot].quantidade = item.quantidade;
+        strcpy(red->bolsa[novo_slot].nome, item->nome);
+        red->bolsa[novo_slot].quantidade = item->quantidade;
         
         red->numero_itens++;
     }
@@ -328,30 +331,28 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
         return 0;
     }
 
-    Item *item = &red->bolsa[indice_item];
+    // Usamos o operador & pois a bolsa guarda structs de Item diretamente, e queremos um ponteiro
+    Item *item = &(red->bolsa[indice_item]);
 
     if (item->quantidade <= 0) {
-        // Não tem mais esse item!
         return 0;
     }
 
     int usou_com_sucesso = 0;
 
     if (strcmp(item->nome, "POTION") == 0) {
-        // --- Efeito da POTION: Cura 20 de HP ---
         if (pokemon_alvo->hp_atual >= pokemon_alvo->hp_max) {
             usou_com_sucesso = 0; 
         } else {
             pokemon_alvo->hp_atual += 20;
             if (pokemon_alvo->hp_atual > pokemon_alvo->hp_max) {
-                pokemon_alvo->hp_atual = pokemon_alvo->hp_max; // Limita ao HP máximo
+                pokemon_alvo->hp_atual = pokemon_alvo->hp_max;
             }
             printf("%s foi curado em 20 HP!\n", pokemon_alvo->nome);
             usou_com_sucesso = 1; 
         }
     } 
     else if (strcmp(item->nome, "SUPER POTION") == 0) {
-        // --- Efeito da SUPER POTION: Cura 50 de HP ---
         if (pokemon_alvo->hp_atual >= pokemon_alvo->hp_max) {
             usou_com_sucesso = 0;
         } else {
@@ -366,17 +367,15 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
     else if (strcmp(item->nome, "POKE BALL") == 0) {
         printf("Você lançou uma POKE BALL em %s!\n", pokemon_alvo->nome);
         
-        // 1. Roda o cálculo matemático baseado no HP do inimigo
         if (calcular_tentativa_captura(pokemon_alvo)) {
             printf("Sucesso! %s foi capturado!\n", pokemon_alvo->nome);
             
-            // Salva a quantidade anterior de pokemons para verificar se a captura mudou o time
             int qtd_antes = red->numero_pokemons;
             
-            // --- SUA FUNÇÃO SENDO USADA AQUI ---
-            capturar_pokemon(red, *pokemon_alvo);
+            // CORREÇÃO: 'pokemon_alvo' já é do tipo "Pokemon*", 
+            // então passamos ele diretamente sem o '&' extra!
+            capturar_pokemon(red, pokemon_alvo);
             
-            // Se o número de pokémons aumentou, significa que havia espaço e foi adicionado
             if (red->numero_pokemons > qtd_antes) {
                 printf("%s foi adicionado ao seu time!\n", pokemon_alvo->nome);
             } else {
@@ -387,25 +386,20 @@ int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
         } 
         else {
             printf("Ah não! %s escapou da POKE BALL!\n", pokemon_alvo->nome);
-            
-            // Se falhar, passa o turno para o oponente atacar
             estado_atual = ESTADO_PROCESSANDO_TURNO; 
         }
         
-        usou_com_sucesso = 1; // Sempre consome a Pokébola ao ser lançada
+        usou_com_sucesso = 1;
     }
     else {
         printf("Esse item não tem um efeito programado ainda.\n");
         usou_com_sucesso = 0;
     }
 
-    // Gerenciamento do estoque de itens na bolsa
     if (usou_com_sucesso) {
         item->quantidade--;
 
-        // Se a quantidade chegou a zero, removemos o item da bolsa para não ficar um slot vazio
         if (item->quantidade == 0) {
-            // Move todos os itens seguintes uma posição para trás para reorganizar a lista
             for (int i = indice_item; i < red->numero_itens - 1; i++) {
                 red->bolsa[i] = red->bolsa[i + 1];
             }

@@ -24,13 +24,14 @@
 // ==========================================
 typedef struct {
     char nome[20];
-    const char *tipo;   // Alterado de 'char' para 'const char*' para aceitar strings
+    char tipo[20];   // Alterado de 'char' para 'const char*' para aceitar strings
     int dano_base;
     int pp_max;
 } InfoAtaque;
 
 typedef struct {
-    char nome[20];       // Ex: "TACKLE"
+    char nome[20];
+    char tipo[20];       // Ex: "TACKLE"
     int dano_base;       // Poder do golpe
     int pp_max;          // Limite máximo de usos
     int pp_atual;        // Usos restantes na batalha

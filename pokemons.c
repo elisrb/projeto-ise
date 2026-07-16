@@ -46,7 +46,7 @@ static void aprender_ataque_por_id(Pokemon *pkmn, int id_ataque) {
     pkmn->golpes[slot].dano_base = info.dano_base;
     pkmn->golpes[slot].pp_max = info.pp_max;
     pkmn->golpes[slot].pp_atual = info.pp_max; // Nasce com carga máxima de PP
-    
+    strcpy(pkmn->golpes[slot].tipo, info.tipo);
     pkmn->qtd_golpes++;
 }
 
