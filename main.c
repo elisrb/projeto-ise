@@ -71,8 +71,6 @@ int main() {
     clear();
     // loop do jogo
     while (1) {
-    // <--- ESSA LINHA PRECISA ESTAR AQUI para limpar o buffer antes de desenhar!
-
         tecla_atual = keyboard_input_filtrado();
 
         switch (batalha_on) {
@@ -80,6 +78,7 @@ int main() {
                 mover_jogador(&player, tecla_atual);
                 atualizar_camera(player.x, player.y);
                 atualizar_animacao_jogador(&player);
+                desenhar_jogador(camera_x, camera_y, &player);
                 desenhar_cenario();
                 desenhar_jogador(camera_x, camera_y, &player);
                 break;
@@ -109,6 +108,7 @@ int main() {
 
             case 3: // batalha terminou
                 batalha_on = 0;
+                pokemon_red.hp_atual = pokemon_red.hp_max;
                 pokemon_inimigo.hp_atual = pokemon_inimigo.hp_max;
                 pokemon_selvagem.hp_atual = pokemon_selvagem.hp_max;
                 break;
