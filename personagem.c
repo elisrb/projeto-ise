@@ -4,6 +4,10 @@
 #include "sprites/fundos.h"
 #include "sprites/colisao.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "pokemons.h"
+#include "batalha.h"
 //#include<stdio.h> // para o printf de debug
 
 int camera_x = 0;
@@ -262,4 +266,152 @@ int checar_colisao(int prox_x, int prox_y) {
     // retorna o bloco correspondente do mapa de colisão
     int indice = tile_y * colunas_de_tiles + tile_x;    
     return cenario_atual->mapa_colisao[indice];
+}
+
+void capturar_pokemon(Jogador *red, Pokemon pokemon_capturado) {
+    if (red->numero_pokemons >= 5) {
+        return;
+    }
+
+    red->pokemons[red->numero_pokemons] = pokemon_capturado;
+    red->numero_pokemons += 1;
+}
+
+void pegar_item(Jogador *red, Item item) {
+    for (int i = 0; i < red->numero_itens; i++) {
+        if (strcmp(red->bolsa[i].nome, item.nome) == 0) {
+            red->bolsa[i].quantidade += item.quantidade;
+            return;
+        }
+    }
+
+    if (red->numero_itens < 10) {
+        int novo_slot = red->numero_itens;
+
+        strcpy(red->bolsa[novo_slot].nome, item.nome);
+        red->bolsa[novo_slot].quantidade = item.quantidade;
+        
+        red->numero_itens++;
+    }
+}
+
+int calcular_tentativa_captura(Pokemon *inimigo) {
+    // 1. Calcula a proporção de HP restante do selvagem (de 0.0 a 1.0)
+    double proporcao_hp = (double)inimigo->hp_atual / (double)inimigo->hp_max;
+
+    // 2. Calcula a chance base (HP quase zero = 85% de chance | HP cheio = 25% de chance)
+    double chance_final = 0.85 - (proporcao_hp * 0.60);
+
+    // 3. Garante limites seguros (entre 10% e 90%) para manter o jogo justo e emocionante
+    if (chance_final < 0.10) chance_final = 0.10;
+    if (chance_final > 0.90) chance_final = 0.90;
+
+    // 4. Roda o sorteio (rand() % 100 gera de 0 a 99)
+    int numero_sorteado = rand() % 100;
+    int alvo_necessario = (int)(chance_final * 100.0);
+
+    // Debug opcional para acompanhar o comportamento no console
+    printf("[SISTEMA] HP: %d/%d | Chance: %.1f%% | Sorteado: %d (Alvo: < %d)\n", 
+           inimigo->hp_atual, inimigo->hp_max, chance_final * 100.0, numero_sorteado, alvo_necessario);
+
+    if (numero_sorteado < alvo_necessario) {
+        return 1; // CAPTURADO!
+    } else {
+        return 0; // ESCAPOU!
+    }
+}
+
+
+int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
+    if (indice_item < 0 || indice_item >= red->numero_itens) {
+        printf("Erro: Item inválido!\n");
+        return 0;
+    }
+
+    Item *item = &red->bolsa[indice_item];
+
+    if (item->quantidade <= 0) {
+        // Não tem mais esse item!
+        return 0;
+    }
+
+    int usou_com_sucesso = 0;
+
+    if (strcmp(item->nome, "POTION") == 0) {
+        // --- Efeito da POTION: Cura 20 de HP ---
+        if (pokemon_alvo->hp_atual >= pokemon_alvo->hp_max) {
+            usou_com_sucesso = 0; 
+        } else {
+            pokemon_alvo->hp_atual += 20;
+            if (pokemon_alvo->hp_atual > pokemon_alvo->hp_max) {
+                pokemon_alvo->hp_atual = pokemon_alvo->hp_max; // Limita ao HP máximo
+            }
+            printf("%s foi curado em 20 HP!\n", pokemon_alvo->nome);
+            usou_com_sucesso = 1; 
+        }
+    } 
+    else if (strcmp(item->nome, "SUPER POTION") == 0) {
+        // --- Efeito da SUPER POTION: Cura 50 de HP ---
+        if (pokemon_alvo->hp_atual >= pokemon_alvo->hp_max) {
+            usou_com_sucesso = 0;
+        } else {
+            pokemon_alvo->hp_atual += 50;
+            if (pokemon_alvo->hp_atual > pokemon_alvo->hp_max) {
+                pokemon_alvo->hp_atual = pokemon_alvo->hp_max;
+            }
+            printf("%s foi curado em 50 HP!\n", pokemon_alvo->nome);
+            usou_com_sucesso = 1;
+        }
+    }
+    else if (strcmp(item->nome, "POKE BALL") == 0) {
+        printf("Você lançou uma POKE BALL em %s!\n", pokemon_alvo->nome);
+        
+        // 1. Roda o cálculo matemático baseado no HP do inimigo
+        if (calcular_tentativa_captura(pokemon_alvo)) {
+            printf("Sucesso! %s foi capturado!\n", pokemon_alvo->nome);
+            
+            // Salva a quantidade anterior de pokemons para verificar se a captura mudou o time
+            int qtd_antes = red->numero_pokemons;
+            
+            // --- SUA FUNÇÃO SENDO USADA AQUI ---
+            capturar_pokemon(red, *pokemon_alvo);
+            
+            // Se o número de pokémons aumentou, significa que havia espaço e foi adicionado
+            if (red->numero_pokemons > qtd_antes) {
+                printf("%s foi adicionado ao seu time!\n", pokemon_alvo->nome);
+            } else {
+                printf("Seu time já estava cheio!\n");
+            }
+            
+            estado_atual = ESTADO_FIM_BATALHA; 
+        } 
+        else {
+            printf("Ah não! %s escapou da POKE BALL!\n", pokemon_alvo->nome);
+            
+            // Se falhar, passa o turno para o oponente atacar
+            estado_atual = ESTADO_PROCESSANDO_TURNO; 
+        }
+        
+        usou_com_sucesso = 1; // Sempre consome a Pokébola ao ser lançada
+    }
+    else {
+        printf("Esse item não tem um efeito programado ainda.\n");
+        usou_com_sucesso = 0;
+    }
+
+    // Gerenciamento do estoque de itens na bolsa
+    if (usou_com_sucesso) {
+        item->quantidade--;
+
+        // Se a quantidade chegou a zero, removemos o item da bolsa para não ficar um slot vazio
+        if (item->quantidade == 0) {
+            // Move todos os itens seguintes uma posição para trás para reorganizar a lista
+            for (int i = indice_item; i < red->numero_itens - 1; i++) {
+                red->bolsa[i] = red->bolsa[i + 1];
+            }
+            red->numero_itens--;
+        }
+    }
+
+    return usou_com_sucesso;
 }

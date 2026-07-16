@@ -38,12 +38,18 @@ typedef struct {
  
     Direcao direcao;
     int movendo;
-    
+
     int frame_atual;     // frame atual do personagem
     int timer_animacao;  // tempo para o pulo da imagem
  
     int timer_movimento; // contador de frames desde o último passo
     int movendo_anterior; // estado de 'movendo' no frame passado (detecta transição)
+
+    Pokemon pokemons[5];
+    int numero_pokemons;
+
+    Item bolsa[10];
+    int numero_itens;
 } Jogador;
 
 // --- VARIÁVEIS GLOBAIS DA CÂMERA E CENÁRIO ---
@@ -73,5 +79,11 @@ void atualizar_camera(int jogador_x, int jogador_y);
 void desenhar_cenario();
 
 int checar_colisao(int prox_x, int prox_y);
+
+void capturar_pokemon(Jogador *red, Pokemon pokemon_capturado);
+
+void pegar_item(Jogador *red, Item item);
+
+int usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo);
 
 #endif // PERSONAGEM_H

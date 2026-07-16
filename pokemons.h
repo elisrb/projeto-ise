@@ -24,6 +24,7 @@
 // ==========================================
 typedef struct {
     char nome[20];
+    const char *tipo;   // Alterado de 'char' para 'const char*' para aceitar strings
     int dano_base;
     int pp_max;
 } InfoAtaque;
@@ -75,6 +76,11 @@ typedef enum {
     ACAO_FUGIR,
     ACAO_USAR_ITEM
 } AcaoBatalha;
+
+typedef struct{
+    char nome[20];
+    int quantidade;
+}Item;
 
 extern const InfoAtaque banco_ataques[];
 extern const EspecieBase banco_especies[];

@@ -9,13 +9,14 @@
 
 // Tabela de propriedades estáticas dos ataques
 const InfoAtaque banco_ataques[] = {
-    [ATK_TACKLE]       = {"TACKLE",       40, 35},
-    [ATK_GROWL]        = {"GROWL",         0, 40}, // Golpe de efeito/status
-    [ATK_SCRATCH]      = {"SCRATCH",      40, 35},
-    [ATK_EMBER]        = {"EMBER",        40, 25},
-    [ATK_THUNDERSHOCK] = {"THUNDERSHOCK", 40, 30},
-    [ATK_GUST]         = {"GUST",         40, 35},
-    [ATK_QUICK_ATTACK] = {"QUICK ATTACK", 40, 30}
+    // Todos os golpes agora possuem exatamente os 4 campos preenchidos
+    [ATK_TACKLE]       = {"TACKLE",       "NORMAL",   40, 35},
+    [ATK_GROWL]        = {"GROWL",        "NORMAL",    0, 40}, // Adicionado tipo "NORMAL"
+    [ATK_SCRATCH]      = {"SCRATCH",      "NORMAL",   40, 35}, // Faltava o pp_max (ajustado para 35) ou o tipo
+    [ATK_EMBER]        = {"EMBER",        "FIRE",     40, 25}, // Adicionado tipo "FIRE"
+    [ATK_THUNDERSHOCK] = {"THUNDERSHOCK", "ELECTRIC", 40, 30}, // Adicionado tipo "ELECTRIC"
+    [ATK_GUST]         = {"GUST",         "FLYING",   40, 35}, // Adicionado tipo "FLYING"
+    [ATK_QUICK_ATTACK] = {"QUICK ATTACK", "NORMAL",   40, 30}  // Adicionado tipo "NORMAL"
 };
 
 // Tabela com os Status Base originais do Game Boy (RGB)
@@ -199,3 +200,5 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         }
     }
 }
+
+
