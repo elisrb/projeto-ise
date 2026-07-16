@@ -53,8 +53,10 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
                     cursor = 0;
                 } 
                 else if (opcao_selecionada == OPCAO_RUN) {
+                    processar_turno_batalha(red, cursor, desafiante, ACAO_FUGIR);
                     printf("Correndo da batalha...\n");
-                    estado_atual = ESTADO_FIM_BATALHA;
+
+                    estado_atual = ESTADO_PROCESSANDO_TURNO;
                 }
             }
             break;
@@ -104,7 +106,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
                 estado_atual = ESTADO_MENU_PRINCIPAL;
             }
             else if (tecla == 0x5A) { // X
-                // chamar função de usar o item [cursor]
+                usar_item(player,cursor,red);
                 estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             break;
@@ -207,7 +209,7 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
 
         case ESTADO_PROCESSANDO_TURNO:
             escrever_texto(11, 10, "       ");
-            
+
             break;
 
         case ESTADO_FIM_BATALHA:

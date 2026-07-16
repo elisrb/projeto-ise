@@ -1,4 +1,5 @@
 #include "pokemons.h"
+#include "personagem.h"
 #include <string.h>  // Para usar strcpy e memset nativos do C
 #include <stdlib.h>  // Caso precise de funções como rand() no futuro
 #include <stdio.h>
@@ -119,8 +120,10 @@ int calcular_dano(const Pokemon *atacante, const Pokemon *defensor, int indice_a
 
 // Função auxiliar interna para aplicar o dano de um ataque
 static void executar_ataque(Pokemon *atacante, Pokemon *defensor, int slot_ataque) {
-    if (atacante->hp_atual <= 0) return; // Se desmaiou antes, não ataca!
-
+    if (atacante->hp_atual <= 0){ 
+        batalha_on = 3;
+        return; // Se desmaiou antes, não ataca!
+    }
     // === PROTEÇÃO DE LIMITE ===
     // Evita ler slots de golpes inexistentes ou não inicializados
     if (slot_ataque < 0 || slot_ataque >= atacante->qtd_golpes) {
@@ -142,11 +145,12 @@ static void executar_ataque(Pokemon *atacante, Pokemon *defensor, int slot_ataqu
     defensor->hp_atual -= dano;
     
     // Garante que o HP não fique negativo
-    if (defensor->hp_atual < 0) defensor->hp_atual = 0;
+    if (defensor->hp_atual < 0) batalha_on = 3;
 
     printf("%s usou %s! Causou %d de dano.\n", atacante->nome, golpe->nome, dano);
     
     if (defensor->hp_atual == 0) {
+        batalha_on = 3;
         printf("%s desmaiou!\n", defensor->nome);
     }
 }
@@ -159,6 +163,7 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         // Regra simples: se o jogador for mais rápido ou tiver sorte, foge
         if (jogador->velocidade >= selvagem->velocidade) {
             printf("Voce fugiu com sucesso!\n");
+            batalha_on = 3;
         } else {
             printf("Nao conseguiu fugir!\n");
             // Como o jogador falhou em fugir, o selvagem ataca livremente
@@ -168,7 +173,7 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         }
         return; 
     }
-
+    
     // 2. Determinar Prioridade de Ataque
     int jogador_ataca_primeiro = 0;
 

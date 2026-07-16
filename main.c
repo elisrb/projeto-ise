@@ -24,7 +24,7 @@ int main() {
     start_player(&player, 32, 32, BAIXO);
     
     // inicializa os pokemons em jogo: o do jogador, o do rival, e o selvagem
-    gerar_pokemon(&pokemon_red, PKMN_BULBASAUR, 0, &bulbasaur);
+    gerar_pokemon(&pokemon_red, PKMN_BULBASAUR, 5, &bulbasaur);
 
     if(pokemon_red.id_especie == PKMN_BULBASAUR) {
         gerar_pokemon(&pokemon_inimigo, PKMN_CHARMANDER, 5, &charmander);
@@ -69,7 +69,6 @@ int main() {
 
     // loop do jogo
     while (1) {
-        clear();
         tecla_atual = keyboard_input_filtrado();
 
         switch (batalha_on) {
@@ -88,11 +87,15 @@ int main() {
                 batalha_on = 2;
                 break;
 
-            case 2: // batalha em andamento
+            case 2: // batalha em andamento 
                 if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
-                    processar_input_batalha(tecla_atual, pokemon_red, player);
+                    if (cenario_atual == &lab) {
+                        processar_input_batalha(tecla_atual, &pokemon_red, &pokemon_inimigo, &player);
+                    } else {
+                        processar_input_batalha(tecla_atual, &pokemon_red, &pokemon_selvagem, &player);
+                    }
                 }
-
+                
                 if (cenario_atual == &lab) {
                     desenhar_batalha(pokemon_red, pokemon_inimigo, player);
                 } else {
