@@ -7,13 +7,14 @@
 
 EstadoBatalha estado_atual = ESTADO_INTRO_BATALHA;
 OpcaoMenu opcao_selecionada = OPCAO_FIGHT;
-int cursor_ataque = 0;
+int cursor = 0;
+char tmp[6];
 
-void processar_input_batalha(unsigned char tecla) {
+void processar_input_batalha(unsigned char tecla, Pokemon red) {
     delay(16); // pra não ler a mesma tecla várias vezes
     printf("Tecla pressionada: 0x%02X\n", tecla);
-    switch (estado_atual) {
 
+    switch (estado_atual) {
         case ESTADO_INTRO_BATALHA:
             if (tecla == 0x5A) { // X, PROVISORIAMENTE ENTER
                 estado_atual = ESTADO_MENU_PRINCIPAL;
@@ -41,13 +42,15 @@ void processar_input_batalha(unsigned char tecla) {
             else if (tecla == 0x5A) { // X, PROVISORIAMENTE ENTER
                 if (opcao_selecionada == OPCAO_FIGHT) {
                     estado_atual = ESTADO_MENU_LUTAR;
-                    cursor_ataque = 0;
+                    cursor = 0;
                 } 
                 else if (opcao_selecionada == OPCAO_PKMN) {
                     estado_atual = ESTADO_MENU_POKEMON;
+                    cursor = 0;
                 } 
                 else if (opcao_selecionada == OPCAO_ITENS) {
                     estado_atual = ESTADO_MENU_ITENS;
+                    cursor = 0;
                 } 
                 else if (opcao_selecionada == OPCAO_RUN) {
                     printf("Correndo da batalha...\n");
@@ -57,24 +60,15 @@ void processar_input_batalha(unsigned char tecla) {
             break;
 
         case ESTADO_MENU_LUTAR:
-            if (tecla == 0x23) {
-                if (cursor_ataque == 0) cursor_ataque = 1;
-                else if (cursor_ataque == 2) cursor_ataque = 3;
+            if (tecla == 0x1B) { // S - baixo
+                cursor = (cursor + 1) % red.qtd_golpes;
             }
-            else if (tecla == 0x1C) {
-                if (cursor_ataque == 1) cursor_ataque = 0;
-                else if (cursor_ataque == 3) cursor_ataque = 2;
+            else if (tecla == 0x1D) { // W - cima
+                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // Cicla entre 0 e red.qtd_golpes-1 (equivalente a -1 mod red.qtd_golpes)
             }
-            else if (tecla == 0x1B) {
-                if (cursor_ataque == 0) cursor_ataque = 2;
-                else if (cursor_ataque == 1) cursor_ataque = 3;
-            }
-            else if (tecla == 0x1D) {
-                if (cursor_ataque == 2) cursor_ataque = 0;
-                else if (cursor_ataque == 3) cursor_ataque = 1;
-            }
-            else if (tecla == 0x22) { // X
-                printf("Usando o ataque %d!\n", cursor_ataque);
+            else if (tecla == 0x5A) { // X
+                printf("Usando o ataque %d!\n", cursor);
+                // chamar função de usar o ataque [cursor]
                 estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             else if (tecla == 0x1A) { // Z - voltar
@@ -83,68 +77,185 @@ void processar_input_batalha(unsigned char tecla) {
             break;
 
         case ESTADO_MENU_POKEMON:
-        case ESTADO_MENU_ITENS:
-            if (tecla == 0x1A) { // Z
+            if (tecla == 0x1B) { // S - baixo
+                cursor = (cursor + 1) % red.qtd_golpes; // mudar para qtd_pokemons
+            }
+            else if (tecla == 0x1D) { // W - cima
+                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // mudar
+            }
+            else if (tecla == 0x1A) { // Z
                 estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            else if (tecla == 0x5A) { // X
+                // chamar função de trocar para o pokemon [cursor]
+                estado_atual = ESTADO_PROCESSANDO_TURNO;
+            }
+            break;
+        
+        case ESTADO_MENU_ITENS:
+            if (tecla == 0x1B) { // S - baixo
+                cursor = (cursor + 1) % red.qtd_golpes; // mudar para qtd_itens
+            }
+            else if (tecla == 0x1D) { // W - cima
+                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // mudar
+            }
+            else if (tecla == 0x1A) { // Z
+                estado_atual = ESTADO_MENU_PRINCIPAL;
+            }
+            else if (tecla == 0x5A) { // X
+                // chamar função de usar o item [cursor]
+                estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             break;
             
         case ESTADO_PROCESSANDO_TURNO:
-            if (tecla == 0x22) {
+            if (tecla == 0x5A) { // X
                 estado_atual = ESTADO_MENU_PRINCIPAL;
             }
             break;
 
         case ESTADO_FIM_BATALHA:
-            if (tecla == 0x22) {
+            if (tecla == 0x5A) { // X
                 estado_atual = ESTADO_MENU_PRINCIPAL;
             }
             break;
     }
 }
 void desenhar_batalha(Pokemon red, Pokemon desafiante) {
-    // 1. Sempre limpa a tela e desenha o fundo básico
-    
-    // (Desenhe os sprites dos Pokémons ativos aqui usando a função que blindamos anteriormente)
+    // Limpa a tela e desenha o fundo básico
     desenhar_pokemons_batalhas(red, desafiante);
 
-    // 2. Desenha a interface específica do estado atual
+    // Desenha a interface específica do estado atual
     switch (estado_atual) {
-
         case ESTADO_INTRO_BATALHA:
-            // Substitua com os dados dinâmicos do seu Pokémon se preferir
-            //escrever_texto("Wild PIDGEOT", X, Y); 
-            //escrever_texto("wants to fight!", X, Y + 10);
-            
-            // Dica visual: Desenhar uma setinha piscando no canto inferior direito
-            // para o jogador saber que precisa apertar 'X' para continuar.
+            desenhar_tela_gameboy(wants_to_fight);
+            escrever_texto(11, 10, "       ");
             break;
         
         case ESTADO_MENU_PRINCIPAL:
-            // Aqui você desenha os textos "FIGHT", "PKMN", "ITEM", "RUN"
+            desenhar_tela_gameboy(menu_batalha);
             desenhar_setinha_menu_principal(opcao_selecionada);
+
+            desenhar_caractere(8, 12, obter_coordenada_borda("canto_sup_esq"));
+            desenhar_caractere(8, 17, obter_coordenada_borda("canto_inf_esq"));
+            desenhar_caractere(8, 13, obter_coordenada_borda("borda_vertical"));
             break;
 
         case ESTADO_MENU_LUTAR:
-            // Aqui você desenha a lista de golpes do seu Pokémon ativo
-            //desenhar_setinha_menu_lutar(cursor_ataque);
+            desenhar_tela_gameboy(menu_fight);
+
+            escrever_texto(2, 10, "        ");
+            escrever_texto(5, 11, "     ");
+
+            if(cursor < red.qtd_golpes) {
+                escrever_texto(2, 10, red.golpes[cursor].nome); // MUDAR PARA TIPO
+                snprintf(tmp, sizeof(tmp), "%d/%d", red.golpes[cursor].pp_atual, red.golpes[cursor].pp_max);
+                escrever_texto(5, 11, tmp);
+            }
+            
+            escrever_texto(5, 13, "             ");
+            escrever_texto(5, 14, "             ");
+            escrever_texto(5, 15, "             ");
+            escrever_texto(5, 16, "             ");
+
+            for (int i = 0; i < red.qtd_golpes; i++) {
+                escrever_texto(6, 13 + i, red.golpes[i].nome);
+            }
+
+            desenhar_setinha_menu_luta(cursor);
+
             break;
 
         case ESTADO_MENU_POKEMON:
-            // Chame sua função para desenhar a lista/tela dos pokémons do jogador
+            desenhar_tela_gameboy(menu_pkmn);
+
+            escrever_texto(5, 4, "             ");
+            escrever_texto(5, 5, "             ");
+            escrever_texto(5, 6, "             ");
+            escrever_texto(5, 7, "             ");
+            escrever_texto(5, 8, "             ");
+            escrever_texto(5, 9, "             ");
+            escrever_texto(5, 10, "             ");
+
+            for (int i = 0; i < red.qtd_golpes; i++) { // MUDAR PARA QTD POKEMONS
+                escrever_texto(6, 4 + i, red.golpes[i].nome);
+            }
+
+            desenhar_setinha_menu_pkmn(cursor);
             break;
 
         case ESTADO_MENU_ITENS:
-            // Chame sua função para renderizar a mochila de itens
+            desenhar_tela_gameboy(menu_pkmn);
+
+            escrever_texto(5, 4, "             ");
+            escrever_texto(5, 5, "             ");
+            escrever_texto(5, 6, "             ");
+            escrever_texto(5, 7, "             ");
+            escrever_texto(5, 8, "             ");
+            escrever_texto(5, 9, "             ");
+            escrever_texto(5, 10, "             ");
+
+            for (int i = 0; i < red.qtd_golpes; i++) { // MUDAR PARA QTD ITENS
+                escrever_texto(6, 4 + i*2, red.golpes[i].nome);
+                snprintf(tmp, sizeof(tmp), "x %d", red.golpes[i].pp_atual); // MUDAR PARA QUANTIDADE DE ITENS
+                escrever_texto(14, 4 + i*2 + 1, tmp);
+            }
+
+            desenhar_setinha_menu_itens(cursor);
             break;
 
         case ESTADO_PROCESSANDO_TURNO:
-            // Chame sua função que renderiza as mensagens textuais na tela
+            escrever_texto(11, 10, "       ");
             break;
 
         case ESTADO_FIM_BATALHA:
             // Desenhe a tela de vitória, XP ou mensagem de fuga
             break;
+    }
+}
+
+void desenhar_setinha_menu_luta(int cursor) {
+    int x, y;
+
+    for (int i = 0; i < 4; i++) {
+    
+        x = 5; y = 13 + i; 
+        
+        if (i == cursor) {
+            escrever_texto(x, y, ">");
+        } else {
+            escrever_texto(x, y, " ");
+        }
+    }
+}
+
+void desenhar_setinha_menu_pkmn(int cursor) {
+    int x, y;
+
+    for (int i = 0; i < 6; i++) {
+    
+        x = 5; y = 4 + i; 
+
+        if (i == cursor) {
+            escrever_texto(x, y, ">");
+        } else {
+            escrever_texto(x, y, " ");
+        }
+    }
+}
+
+void desenhar_setinha_menu_itens(int cursor) {
+    int x, y;
+
+    for (int i = 0; i < 3; i++) {
+    
+        x = 5; y = 4 + i*2; 
+
+        if (i == cursor) {
+            escrever_texto(x, y, ">");
+        } else {
+            escrever_texto(x, y, " ");
+        }
     }
 }
 
@@ -184,11 +295,14 @@ void desenhar_tela_gameboy(const unsigned short tela[144][160]) {
             // cor do pixel correspondente
             unsigned short cor = tela[y][x];
             
-            // coordenada final na tela
-            int vga_x = OFFSET_X + x;
-            int vga_y = OFFSET_Y + y;
+            if (cor != 0xA004 && cor != 0xF802) { // cor transparente
+                // coordenada final na tela
+                int vga_x = OFFSET_X + x;
+                int vga_y = OFFSET_Y + y;
             
             write_pixel(vga_x, vga_y, cor);
+                continue;
+            }
         }
     }
 }
@@ -224,31 +338,22 @@ void desenhar_pokemon_costas(const unsigned short *sprite) {
             write_pixel(vga_x + 1, vga_y + 1, cor_pixel);
         }
     }
-}
-
-void desenhar_dialogo_batalhas() {
-    imprimir_caixa_dialogo();
-    desenhar_caractere(8, 12, obter_coordenada_borda("canto_sup_esq"));
-    desenhar_caractere(8, 17, obter_coordenada_borda("canto_inf_esq"));
-    desenhar_caractere(8, 13, obter_coordenada_borda("borda_vertical"));
-}
+}    
 
 void completar_fundo_batalha() {
-    // completa borda do pokemon rival
-    for (int x = OFFSET_X + 96; x < OFFSET_X + 152; x++){ 
-        for (int y = OFFSET_Y + 0; y < OFFSET_Y + 56; y++) {
+    // completa as transparências
+    for (int x = OFFSET_X; x < OFFSET_X + TELA_LARGURA_GB; x++){ 
+        for (int y = OFFSET_Y; y < OFFSET_Y + TELA_ALTURA_GB; y++) {
             write_pixel(x, y, 0xF75F);
         }
     }
 }
 
 void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
-    desenhar_tela_gameboy(menu_batalha);
-
     completar_fundo_batalha();
     desenhar_pokemon_costas(red.sprites->costas);
     desenhar_pokemon_frente(desafiante.sprites->frente);
-    desenhar_dialogo_batalhas();
+    imprimir_caixa_dialogo();
 
     escrever_texto(10, 7, "          ");
     escrever_texto(10, 7, red.nome);
@@ -259,16 +364,16 @@ void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
     escrever_texto(14, 8, ":L");
     escrever_texto(4, 1, ":L");
 
-    char tmp[4];
+    snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
+    escrever_texto(16, 8, tmp);
 
     snprintf(tmp, sizeof(tmp), "%d", red.nivel);
-    escrever_texto(16, 8, tmp);
-    snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
     escrever_texto(6, 1, tmp);
 
     snprintf(tmp, sizeof(tmp), "%d", red.hp_atual);
     escrever_texto(11, 10, "   ");
     escrever_texto(11, 10, tmp);
+    
     snprintf(tmp, sizeof(tmp), "%d", red.hp_max);
     escrever_texto(15, 10, "   ");
     escrever_texto(15, 10, tmp);

@@ -38,7 +38,7 @@ int main() {
         // e diferente de zero -- evita repetir a ação todo frame
         // enquanto a tecla fica segurada (menu não é movimento contínuo)
         if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
-            processar_input_batalha(tecla_atual);
+            processar_input_batalha(tecla_atual, pokemon_red);
         }
         tecla_anterior = tecla_atual;
 
