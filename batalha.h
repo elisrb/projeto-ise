@@ -8,10 +8,10 @@
 #define TELA_LARGURA_GB 160
 #define TELA_ALTURA_GB  144
 
-#define SETA_X_COL0   9  // Posição X para FIGHT e ITEM
-#define SETA_X_COL1   15 // Posição X para PKMN e RUN
+#define SETA_X_COL0   9  
+#define SETA_X_COL1   15 
 
-#define SETA_Y_LIN0   14 // Posição Y para FIGHT e PKMN
+#define SETA_Y_LIN0   14 
 #define SETA_Y_LIN1   16
 
 typedef enum {
@@ -31,10 +31,10 @@ typedef enum {
     OPCAO_RUN
 } OpcaoMenu;
 
-// Variáveis de controle globais (para que outros arquivos possam ler se necessário)
+
 extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
-extern int cursor; // De 0 a 3 para mapear os 4 golpes
+extern int cursor; 
 
 void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafiante, Jogador *player);
 void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player);

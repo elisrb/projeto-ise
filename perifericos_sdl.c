@@ -107,9 +107,6 @@ void hw_cleanup(void) {
 
 /* ===================== Mecanismo de Atualização da Janela ===================== */
 
-// Processa eventos do Windows (fechar janela, teclas digitadas) e apresenta o
-// buffer atual na tela. Só é chamada de dentro deste arquivo (inverter_buffers
-// e inicializar_double_buffering) para garantir um único present() por frame.
 static void atualizar_simulador(void) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -177,8 +174,7 @@ void clear(void) {
     }
 }
 
-// Opcional: Como o terminal de texto da FPGA (Char Base) usa fontes nativas de hardware,
-// no PC você pode usar o terminal padrão para debug ou estender via SDL2_ttf se preferir.
+
 void write_char(int x, int y, char c) {
     // Redireciona de forma simples para o terminal para você não perder informações
     printf("[VGA Char Text (%d,%d)]: %c\n", x, y, c);
@@ -190,13 +186,6 @@ void write_text(int x, int y, char *text) {
 
 /* ===================== Teclado PS/2 Emulado ===================== */
 
-// Devolve o codigo PS/2 de uma tecla pressionada AGORA (nao um evento de
-// toque unico) -- consulta o array de estado continuo, atualizado a cada
-// SDL_KEYDOWN/SDL_KEYUP em atualizar_simulador(). Isso permite tanto
-// movimento continuo (chamar todo frame, personagem anda enquanto segura)
-// quanto uso posterior pra outras teclas (menu, pause, etc), sem precisar
-// de uma segunda funcao. Prioriza nesta ordem: cima, baixo, esquerda,
-// direita, espaco, enter, esc. Devolve 0 se nenhuma estiver ativa.
 unsigned char keyboard_input(void) {
     static const unsigned char ordem_prioridade[] = {
         0x75, 0x1D, // cima (seta / W)
@@ -217,9 +206,6 @@ unsigned char keyboard_input(void) {
     return 0;
 }
 
-// Mantido por compatibilidade de nome com o resto do codigo -- agora e
-// so um alias de keyboard_input(), ja que a propria keyboard_input() ja
-// reflete o estado atual do teclado.
 unsigned char keyboard_input_filtrado(void) {
     return keyboard_input();
 }

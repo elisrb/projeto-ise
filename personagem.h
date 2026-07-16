@@ -34,17 +34,17 @@ typedef struct {
     int x;
     int y;
  
-    int destino_x; // posição (em pixels) do tile pra onde está indo
+    int destino_x; 
     int destino_y;
  
     Direcao direcao;
     int movendo;
 
-    int frame_atual;     // frame atual do personagem
-    int timer_animacao;  // tempo para o pulo da imagem
+    int frame_atual;     
+    int timer_animacao;  
  
-    int timer_movimento; // contador de frames desde o último passo
-    int movendo_anterior; // estado de 'movendo' no frame passado (detecta transição)
+    int timer_movimento; 
+    int movendo_anterior; 
 
     Pokemon pokemons[5];
     int numero_pokemons;
@@ -54,7 +54,7 @@ typedef struct {
 } Jogador;
 
 // --- VARIÁVEIS GLOBAIS ---
-// Declaradas como extern para que o main.c também possa ler os valores delas
+
 extern int camera_x;
 extern int camera_y;
 extern Cenario *cenario_atual;

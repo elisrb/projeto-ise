@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include<stdio.h> // para o printf de debug
+
 
 int camera_x = 0;
 int camera_y = 0;
@@ -17,7 +17,7 @@ Cenario *cenario_atual;
 int batalha_on;
 
 void start_player(Jogador *player, int dx, int dy, int dir) {
-    // arredonda pro múltiplo de 16 mais próximo
+    
     player->x = (dx / 16) * 16;
     player->y = (dy / 16) * 16;
     player->destino_x = player->x;
@@ -35,14 +35,14 @@ void start_player(Jogador *player, int dx, int dy, int dir) {
 
 void atualizar_animacao_jogador(Jogador *player) {
     if (player->movendo) {
-        // 1. Calcula a distância restante nos dois eixos
+        
         int dist_x = abs(player->destino_x - player->x);
         int dist_y = abs(player->destino_y - player->y);
         
-        // Pega a maior distância (já que ele só anda em um eixo por vez)
+        
         int dist_restante = (dist_x > dist_y) ? dist_x : dist_y;
         
-        // Transforma a distância restante em progresso dentro do tile (0 a 16 pixels)
+        
         int progresso = 16 - dist_restante;
 
         // ==========================================
@@ -52,7 +52,7 @@ void atualizar_animacao_jogador(Jogador *player) {
             if (progresso < 4 || progresso > 12) {
                 player->frame_atual = 1; // Pés Juntos (frente/costas)
             } else {
-                // Descobre a paridade do tile para alternar o pé que inicia
+                
                 int tile_x = player->destino_x / 16;
                 int tile_y = player->destino_y / 16;
                 int paridade = (tile_x + tile_y) % 2;
@@ -64,13 +64,13 @@ void atualizar_animacao_jogador(Jogador *player) {
         // ==========================================
         else {
             if (progresso <= 4) {
-                player->frame_atual = 0; // 1º tempo: Pés juntos (início do movimento)
+                player->frame_atual = 0; 
             } 
             else if (progresso > 4 && progresso <= 10) {
-                player->frame_atual = 1; // 2º tempo: Pé esquerdo (meio do movimento)
+                player->frame_atual = 1; 
             } 
             else {
-                player->frame_atual = 2; // 3º tempo: Pé direito (final do movimento)
+                player->frame_atual = 2; 
             }
         }
 
@@ -79,13 +79,13 @@ void atualizar_animacao_jogador(Jogador *player) {
         // JOGADOR TOTALMENTE PARADO
         // ==========================================
         if (player->direcao == ESQUERDA || player->direcao == DIREITA) {
-            player->frame_atual = 0; // Pés juntos de lado é o frame 0
+            player->frame_atual = 0; 
         } else {
-            player->frame_atual = 1; // Pés juntos de frente/costas é o frame 1
+            player->frame_atual = 1; 
         }
     }
 
-    // Guarda o estado para o próximo frame
+    
     player->movendo_anterior = player->movendo;
 }
 
@@ -96,7 +96,7 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
     if (tela_x >= OFFSET_X - SPRITE_TAMANHO && tela_x < (OFFSET_X + CAM_LARGURA) &&
         tela_y >= OFFSET_Y - SPRITE_TAMANHO && tela_y < (OFFSET_Y + CAM_ALTURA)) {
 
-        // CORREÇÃO AQUI: Declara como um ponteiro para um array de 16 elementos
+        
         const unsigned short (*sprite_atual)[16] = SPRITES_RED[player->direcao][player->frame_atual];
 
         for (int y = 0; y < SPRITE_TAMANHO; y++) {
@@ -114,8 +114,7 @@ void desenhar_jogador(int camera_x, int camera_y, const Jogador *player) {
 void mover_jogador(Jogador *player, unsigned char tecla) {
     if (!cenario_atual) return;
 
-    // Se já está no meio de um passo, só continua avançando na direção
-    // do destino -- ignora tecla nova até completar o tile atual
+    
     if (player->movendo) {
         if (player->x < player->destino_x) player->x += VELOCIDADE;
         if (player->x > player->destino_x) player->x -= VELOCIDADE;
@@ -135,7 +134,7 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
         case 0x1C: case 0x6B: player->direcao = ESQUERDA;  dx = -16; break;
         case 0x23: case 0x74: player->direcao = DIREITA;   dx =  16; break;
         default:
-            return; // nenhuma tecla -- não se move, interrompe a função
+            return; 
     }
 
     int prox_x = player->x + dx;
@@ -145,14 +144,14 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
     switch(resultado_terreno) {
         case LIVRE:
-            //printf("LIVRE\n");
+            
             player->destino_x = prox_x;
             player->destino_y = prox_y;
             player->movendo = 1;
             break;
 
         case GRAMA:
-            //printf("GRAMA\n");
+            
             if (rand() % 100 < 20) { // 20% de chance de batalha
                 batalha_on = 1;
             } else {
@@ -163,21 +162,15 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
             break;
 
         case PORTA:
-            //printf("PORTA\n");
+            
 
-            /*// loop inteiro de desenhar o próximo frame antes de entrar na porta
-            atualizar_camera(prox_x, prox_y);
-            atualizar_animacao_jogador(player);
-            desenhar_cenario();
-            desenhar_jogador(camera_x, camera_y, player);
-            inverter_buffers();
-            delay(16);*/
+            
 
             for (int i = 0; i < cenario_atual->qtd_portas; i++) {
                 Porta porta_teste = cenario_atual->portas[i];
-                //printf("Checando porta %d: (%d, %d) = (%d, %d)\n", i, porta_teste.x, porta_teste.y, prox_x/16, prox_y/16);
+                
                 if (prox_x/16 == porta_teste.x && prox_y/16 == porta_teste.y) {
-                    //printf("Encontrada porta para %p (%d, %d)\n", porta_teste.destino, porta_teste.novo_x, porta_teste.novo_y);
+                    
                     delay(100);
                     cenario_atual = porta_teste.destino;
                     player->x = (porta_teste.novo_x)*16;
@@ -190,8 +183,8 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
             break;
         
         case OBSTACULO:
-            //printf("OBSTACULO\n");
-            // não faz nada
+            
+            
             break;
     }
 }
@@ -379,8 +372,8 @@ char* usar_item(Jogador *red, int indice_item, Pokemon *pokemon_alvo) {
             
             int qtd_antes = red->numero_pokemons;
             
-            // CORREÇÃO: 'pokemon_alvo' já é do tipo "Pokemon*", 
-            // então passamos ele diretamente sem o '&' extra!
+            
+            
             capturar_pokemon(red, pokemon_alvo);
             
             if (red->numero_pokemons > qtd_antes) {

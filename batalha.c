@@ -67,7 +67,7 @@ void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafia
                 cursor = (cursor + 1) % red->qtd_golpes;
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + red->qtd_golpes - 1) % red->qtd_golpes; // Cicla entre 0 e red.qtd_golpes-1 (equivalente a -1 mod red.qtd_golpes)
+                cursor = (cursor + red->qtd_golpes - 1) % red->qtd_golpes; 
             }
             else if (tecla == 0x5A) { // X
                 printf("Usando o ataque %d!\n", cursor);

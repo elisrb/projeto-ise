@@ -69,7 +69,6 @@ int main() {
         delay(16);
     }
     clear();
-    // loop do jogo
     while (1) {
         tecla_atual = keyboard_input_filtrado();
 

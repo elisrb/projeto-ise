@@ -47,9 +47,6 @@ void write_text(int x, int y, char *text);
 
 /* ===================== Teclado PS/2 (emulado) ===================== */
 
-/* Retorna o scancode PS/2 de uma tecla pressionada AGORA (reflete o
- * estado atual do teclado -- não consome, não depende de "toque novo").
- * Chamar todo frame dá movimento contínuo; 0 se nada estiver ativo. */
 unsigned char keyboard_input(void);
 
 /* Mantido por compatibilidade de nome com o resto do código -- agora é

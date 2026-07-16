@@ -16,25 +16,25 @@
 #define PKMN_CHARMANDER  1
 #define PKMN_SQUIRTLE    2
 #define PKMN_PIKACHU     3
-#define PKMN_PIDGEY      4  // Rota 1
-#define PKMN_RATTATA     5  // Rota 1
+#define PKMN_PIDGEY      4  
+#define PKMN_RATTATA     5  
 
 // ==========================================
 // ESTRUTURA DOS ATAQUES (MOVIMENTOS)
 // ==========================================
 typedef struct {
     char nome[20];
-    char tipo[20];   // Alterado de 'char' para 'const char*' para aceitar strings
+    char tipo[20];   
     int dano_base;
     int pp_max;
 } InfoAtaque;
 
 typedef struct {
     char nome[20];
-    char tipo[20];       // Ex: "TACKLE"
-    int dano_base;       // Poder do golpe
-    int pp_max;          // Limite máximo de usos
-    int pp_atual;        // Usos restantes na batalha
+    char tipo[20];      
+    int dano_base;       
+    int pp_max;          
+    int pp_atual;        
 } Ataque;
 
 typedef struct {
@@ -43,29 +43,29 @@ typedef struct {
     int base_atk;
     int base_def;
     int base_vel;
-    int ataques_iniciais[2]; // IDs dos ataques que ele já carrega ao nascer
+    int ataques_iniciais[2]; 
 } EspecieBase;
 
 // ==========================================
 // ESTRUTURA PRINCIPAL DO POKÉMON
 // ==========================================
 typedef struct {
-    char nome[20];       // Nome do monstrinho
-    int id_especie;      // Guarda o ID (ex: PKMN_CHARMANDER) para evoluções/level up
-    int nivel;           // Nível atual (1 a 100)
+    char nome[20];       
+    int id_especie;      
+    int nivel;           
     
-    // Status de combate atualizados
+    
     int hp_max;          
-    int hp_atual;        // Vida atual (se chegar a 0, desmaiou)
+    int hp_atual;        
     int ataque;          
     int defesa;          
-    int velocidade;      // Quem tiver a maior, ataca primeiro no turno
+    int velocidade;      
     
-    // Sistema de golpes (Máximo de 4)
+    
     Ataque golpes[4];
     int qtd_golpes;      
     
-    // Ponteiros para os sprites na tela de batalha da placa DE1-SoC
+    
     SpritePokemon *sprites;
 } Pokemon;
 
@@ -90,13 +90,13 @@ extern const EspecieBase banco_especies[];
 // PROTÓTIPO DAS FUNÇÕES
 // ==========================================
 
-// Inicializa e escala um Pokémon do zero baseado no banco de dados e nível
+
 void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon *sprite);
 
-// Sobe 1 nível do Pokémon e recalcula os status mantendo a proporção de dano sofrido
+
 void subir_nivel(Pokemon *pkmn);
 
-// Calcula o dano de forma simplificada baseada na fórmula oficial de Gen 1
+
 int calcular_dano(const Pokemon *atacante, const Pokemon *defensor, int indice_ataque);
 
 char *processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon *selvagem, AcaoBatalha acao_selvagem);

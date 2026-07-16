@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 199309L  /* necessario p/ nanosleep() com -std=c99 */
+#define _POSIX_C_SOURCE 199309L 
 
 #include "perifericos.h"
 
@@ -17,20 +17,20 @@
 #define FPGA_CHAR_BASE     0xC9000000
 
 #define LW_BRIDGE_BASE     0xFF200000
-#define LW_BRIDGE_SPAN     0x00200000  /* 2 MB, cobre PS/2 e o pixel ctrl */
+#define LW_BRIDGE_SPAN     0x00200000  
 
 #define VGA_PIXEL_CTRL_OFF 0x00003020
 #define PS2_KEYBOARD_OFF   0x00000100
 
-#define SDRAM_SPAN         0x10000000  /* 256 MB -- precisa cobrir o offset do
-                                         * buffer de front (0x08000000) MAIS o
-                                         * tamanho de um framebuffer inteiro */
+#define SDRAM_SPAN         0x10000000  
+                                         
+                                         
 #define CHAR_SPAN          0x00001000
 
 /* ===================== Estado interno ===================== */
 static int dev_mem_fd = -1;
 
-static void *sdram_map    = NULL; /* base = BUFFER_BACK_SDRAM (0xC0000000) */
+static void *sdram_map    = NULL; 
 static void *char_map     = NULL;
 static void *lw_bridge_map = NULL;
 
@@ -42,7 +42,7 @@ short SISTEM_STANDARD_COLOR = COR_PRETO;
 
 static volatile short (*vga_desenho)[512];
 
-/* Mapeia 'length' bytes a partir do endereço físico 'phys_addr'. */
+
 static void *map_physical(off_t phys_addr, size_t length) {
     long page_size = sysconf(_SC_PAGESIZE);
     off_t page_base   = phys_addr & ~(off_t)(page_size - 1);
@@ -77,9 +77,9 @@ int hw_init(void) {
     vga_pixel_ctrl = (volatile int *) ((char *)lw_bridge_map + VGA_PIXEL_CTRL_OFF);
     ps2_reg = (volatile int *) ((char *)lw_bridge_map + PS2_KEYBOARD_OFF);
 
-    (void)*ps2_reg; /* descarta qualquer dado residual do boot */
+    (void)*ps2_reg; 
 
-    /* vga_desenho começa apontando pro buffer de front até o primeiro swap */
+    
     vga_desenho = (volatile short (*)[512]) sdram_map;
 
     return 0;
@@ -114,19 +114,19 @@ void inverter_buffers(void) {
     *(vga_pixel_ctrl) = 1;
     while ((*(vga_pixel_ctrl + 3) & 0x1) != 0);
 
-    /* le o endereco do NOVO back buffer no offset +1 (nao +0, que
-     * devolve o buffer atualmente EXIBIDO, nao o que devemos desenhar) */
+    
+     
     uint32_t buf_fisico = (uint32_t)*(vga_pixel_ctrl + 1);
 
-    /* só aceita o endereço se ele realmente cair dentro da janela que
-     * mapeamos -- evita ponteiro selvagem se o registrador devolver
-     * algo inesperado (timing, IP core não pronto, etc.) */
+   
+    
+    
     if (buf_fisico >= BUFFER_BACK_SDRAM && buf_fisico < (BUFFER_BACK_SDRAM + SDRAM_SPAN)) {
         vga_desenho = (volatile short (*)[512])
             ((char *)sdram_map + (buf_fisico - BUFFER_BACK_SDRAM));
     }
-    /* senão, mantém o vga_desenho anterior (mais seguro que apontar
-       pra endereço inválido) */
+    
+       
 }
 
 void write_pixel(int x, int y, short cor) {
@@ -166,13 +166,12 @@ unsigned char keyboard_input_filtrado(void) {
 
         unsigned char byte = dados & 0xFF;
         if (byte == 0xF0) {
-            /* espera o byte seguinte, mas com limite -- evita travar
-             * pra sempre se o hardware nao responder como esperado */
+            
             int tentativas = 0;
             while (!(*ps2_reg & 0x8000) && tentativas < 100000) {
                 tentativas++;
             }
-            (void)*ps2_reg; /* descarta o código que segue o break code */
+            (void)*ps2_reg; 
         } else if (byte != 0xE0) {
             ultimo_valido = byte;
         }
@@ -182,10 +181,6 @@ unsigned char keyboard_input_filtrado(void) {
 
 /* ===================== Timing ===================== */
 
-/* Espera 'ms' milissegundos usando nanosleep() -- chamada de sistema
- * POSIX padrao, nao mexe em nenhum registrador de hardware, entao nao
- * disputa timer nenhum com o kernel (diferente do A9 Private Timer,
- * que o proprio Linux usa como fonte do tick do escalonador). */
 void delay(uint32_t ms) {
     if (ms == 0) return;
 
@@ -193,9 +188,8 @@ void delay(uint32_t ms) {
     req.tv_sec  = ms / 1000;
     req.tv_nsec = (long)(ms % 1000) * 1000000L;
 
-    /* nanosleep pode retornar cedo se um sinal interromper -- em loop
-     * garante que o tempo total pedido realmente passou */
+    
     while (nanosleep(&req, &req) == -1 && errno == EINTR) {
-        /* req ja foi atualizado com o tempo restante, continua */
+        
     }
 }

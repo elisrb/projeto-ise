@@ -223,20 +223,9 @@ void desenhar_caractere(int grid_coluna, int grid_linha, CoordenadaGrid coord) {
         return; 
     }
 
-    // 2. Calcula a posição real em pixels (VGA) baseada na célula do grid e nos offsets
     int pixel_x_inicial = OFFSET_X + (grid_coluna * 8);
     int pixel_y_inicial = OFFSET_Y + (grid_linha * 8);
 
-    /*// Tratamento para o caractere de Espaço ' '
-    if (caractere == ' ') {
-        for (int y = 0; y < 8; y++) {
-            for (int x = 0; x < 8; x++) {
-                // Desenha o espaço respeitando as coordenadas calculadas
-                write_pixel(pixel_x_inicial + x, pixel_y_inicial + y, espaco[y][x]);
-            }
-        }
-        return;
-    }*/
 
     int img_start_x = (coord.coluna * 9); 
     int img_start_y = (coord.linha * 9); 
