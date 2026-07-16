@@ -2,16 +2,15 @@
 #define BATALHA_POKEMON_H
 #include "pokemons.h"
 
-
 #define OFFSET_X 80
 #define OFFSET_Y 48
 #define TELA_LARGURA_GB 160
 #define TELA_ALTURA_GB  144
 
 #define SETA_X_COL0   9  // Posição X para FIGHT e ITEM
-#define SETA_X_COL1   15// Posição X para PKMN e RUN
+#define SETA_X_COL1   15 // Posição X para PKMN e RUN
 
-#define SETA_Y_LIN0   14// Posição Y para FIGHT e PKMN
+#define SETA_Y_LIN0   14 // Posição Y para FIGHT e PKMN
 #define SETA_Y_LIN1   16
 
 typedef enum {
@@ -36,11 +35,15 @@ extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
 extern int cursor_ataque; // De 0 a 3 para mapear os 4 golpes
 
-void processar_input_batalha(unsigned char tecla);
+void processar_input_batalha(unsigned char tecla, Pokemon red);
 void desenhar_batalha(Pokemon red, Pokemon desafiante);
 void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
+void desenhar_setinha_menu_luta(int cursor_atual);
+void desenhar_setinha_menu_itens(int cursor_atual);
+void desenhar_setinha_menu_pkmn(int cursor_atual);
+
 
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);
 void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante);
 
-#endif
+#endif // BATALHA_H
