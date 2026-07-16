@@ -1,11 +1,11 @@
 #include "pokemons.h"
-#include <string.h>  // Para usar strcpy nativo do C
+#include <string.h>  // Para usar strcpy e memset nativos do C
 #include <stdlib.h>  // Caso precise de funções como rand() no futuro
 #include <stdio.h>
+
 // ============================================================================
 // BANCO DE DADOS ESTÁTICO (Escondido dentro do .c para proteção de dados)
 // ============================================================================
-
 
 // Tabela de propriedades estáticas dos ataques
 const InfoAtaque banco_ataques[] = {
@@ -32,7 +32,7 @@ const EspecieBase banco_especies[] = {
 };
 
 // ============================================================================
-// FUNÇÕES DE LOGICA DO SISTEMA
+// FUNÇÕES DE LÓGICA DO SISTEMA
 // ============================================================================
 
 // Função auxiliar interna para ensinar os golpes pelo ID da tabela
@@ -46,11 +46,16 @@ static void aprender_ataque_por_id(Pokemon *pkmn, int id_ataque) {
     pkmn->golpes[slot].dano_base = info.dano_base;
     pkmn->golpes[slot].pp_max = info.pp_max;
     pkmn->golpes[slot].pp_atual = info.pp_max; // Nasce com carga máxima de PP
-    strcpy(pkmn->golpes[slot].tipo, info.tipo);
+    strcpy(pkmn->golpes[slot].tipo, info.tipo); // Mantido o tipo do golpe!
+    
     pkmn->qtd_golpes++;
 }
 
 void gerar_pokemon(Pokemon *pkmn, int id_especie, int nivel, SpritePokemon *sprite) {
+    // === PROTEÇÃO CONTRA LIXO DE MEMÓRIA ===
+    // Limpa toda a estrutura antes de definir os dados. Evita bugs nos slots vazios (2 e 3).
+    memset(pkmn, 0, sizeof(Pokemon));
+
     EspecieBase base = banco_especies[id_especie];
     
     pkmn->id_especie = id_especie;
@@ -95,13 +100,15 @@ void subir_nivel(Pokemon *pkmn) {
 }
 
 int calcular_dano(const Pokemon *atacante, const Pokemon *defensor, int indice_ataque) {
+    // === PROTEÇÃO DE LIMITE ===
+    if (indice_ataque < 0 || indice_ataque >= atacante->qtd_golpes) return 0;
+
     Ataque golpe = atacante->golpes[indice_ataque];
     
     // Se for um golpe de status (como Growl), não causa dano numérico direto
     if (golpe.dano_base == 0) return 0;
     
     // Fórmula oficial simplificada de Pokémon (Geração 1):
-    // Dano = (((((2 * Nivel) / 5) + 2) * PoderAtaque * (AtkAtacante / DefDefensor)) / 50) + 2
     int parte1 = ((2 * atacante->nivel) / 5) + 2;
     int parte2 = parte1 * golpe.dano_base * atacante->ataque;
     int parte3 = parte2 / (defensor->defesa > 0 ? defensor->defesa : 1); // Evita divisão por zero
@@ -110,10 +117,15 @@ int calcular_dano(const Pokemon *atacante, const Pokemon *defensor, int indice_a
     return dano_final;
 }
 
-
 // Função auxiliar interna para aplicar o dano de um ataque
 static void executar_ataque(Pokemon *atacante, Pokemon *defensor, int slot_ataque) {
     if (atacante->hp_atual <= 0) return; // Se desmaiou antes, não ataca!
+
+    // === PROTEÇÃO DE LIMITE ===
+    // Evita ler slots de golpes inexistentes ou não inicializados
+    if (slot_ataque < 0 || slot_ataque >= atacante->qtd_golpes) {
+        return;
+    }
 
     Ataque *golpe = &atacante->golpes[slot_ataque];
     
@@ -147,7 +159,6 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         // Regra simples: se o jogador for mais rápido ou tiver sorte, foge
         if (jogador->velocidade >= selvagem->velocidade) {
             printf("Voce fugiu com sucesso!\n");
-            // Aqui no seu loop principal você setaria o estado do jogo de volta para MAPA
         } else {
             printf("Nao conseguiu fugir!\n");
             // Como o jogador falhou em fugir, o selvagem ataca livremente
@@ -161,10 +172,13 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
     // 2. Determinar Prioridade de Ataque
     int jogador_ataca_primeiro = 0;
 
-    // Checa se alguém usou o Quick Attack (ID 6 que configuramos no banco)
+    // Checa se alguém usou o Quick Attack utilizando strcmp de forma segura
     int jogador_usou_prioridade = (acao_jogador <= ACAO_ATACAR_SLOT_3 && 
+                                   acao_jogador < jogador->qtd_golpes &&
                                    strcmp(jogador->golpes[acao_jogador].nome, "QUICK ATTACK") == 0);
+                                   
     int selvagem_usou_prioridade = (acao_selvagem <= ACAO_ATACAR_SLOT_3 && 
+                                    acao_selvagem < selvagem->qtd_golpes &&
                                     strcmp(selvagem->golpes[acao_selvagem].nome, "QUICK ATTACK") == 0);
 
     if (jogador_usou_prioridade && !selvagem_usou_prioridade) {
@@ -200,5 +214,3 @@ void processar_turno_batalha(Pokemon *jogador, AcaoBatalha acao_jogador, Pokemon
         }
     }
 }
-
-

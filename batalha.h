@@ -36,7 +36,7 @@ extern EstadoBatalha estado_atual;
 extern OpcaoMenu opcao_selecionada;
 extern int cursor_ataque; // De 0 a 3 para mapear os 4 golpes
 
-void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player);
+void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafiante, Jogador *player);
 void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player);
 void desenhar_setinha_menu_principal(OpcaoMenu opcao_atual);
 void desenhar_setinha_menu_luta(int cursor_atual);

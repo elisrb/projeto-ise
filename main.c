@@ -46,7 +46,7 @@ int main() {
         unsigned char tecla_atual = keyboard_input();
 
         if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
-            processar_input_batalha(tecla_atual, pokemon_red, player);
+            processar_input_batalha(tecla_atual, &pokemon_red, &pokemon_inimigo, &player);
         }
         tecla_anterior = tecla_atual;
 

@@ -3,13 +3,14 @@
 #include "sprites/telas_batalha.h"
 #include "fonte.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 EstadoBatalha estado_atual = ESTADO_INTRO_BATALHA;
 OpcaoMenu opcao_selecionada = OPCAO_FIGHT;
 int cursor = 0;
 char tmp[6];
 
-void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player) {
+void processar_input_batalha(unsigned char tecla, Pokemon *red, Pokemon *desafiante, Jogador *player){
     delay(16); // pra não ler a mesma tecla várias vezes
     printf("Tecla pressionada: 0x%02X\n", tecla);
 
@@ -60,14 +61,15 @@ void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player) {
 
         case ESTADO_MENU_LUTAR:
             if (tecla == 0x1B) { // S - baixo
-                cursor = (cursor + 1) % red.qtd_golpes;
+                cursor = (cursor + 1) % red->qtd_golpes;
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + red.qtd_golpes - 1) % red.qtd_golpes; // Cicla entre 0 e red.qtd_golpes-1 (equivalente a -1 mod red.qtd_golpes)
+                cursor = (cursor + red->qtd_golpes - 1) % red->qtd_golpes; // Cicla entre 0 e red.qtd_golpes-1 (equivalente a -1 mod red.qtd_golpes)
             }
             else if (tecla == 0x5A) { // X
                 printf("Usando o ataque %d!\n", cursor);
-                // chamar função de usar o ataque [cursor]
+                AcaoBatalha acao_selvagem = (AcaoBatalha)(rand() % desafiante->qtd_golpes);
+                processar_turno_batalha(red, cursor, desafiante, acao_selvagem);
                 estado_atual = ESTADO_PROCESSANDO_TURNO;
             }
             else if (tecla == 0x1A) { // Z - voltar
@@ -77,10 +79,10 @@ void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player) {
 
         case ESTADO_MENU_POKEMON:
             if (tecla == 0x1B) { // S - baixo
-                cursor = (cursor + 1) % player.numero_pokemons; 
+                cursor = (cursor + 1) % player->numero_pokemons; 
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + player.numero_pokemons - 1) % player.numero_pokemons; 
+                cursor = (cursor + player->numero_pokemons - 1) % player->numero_pokemons; 
             }
             else if (tecla == 0x1A) { // Z
                 estado_atual = ESTADO_MENU_PRINCIPAL;
@@ -93,10 +95,10 @@ void processar_input_batalha(unsigned char tecla, Pokemon red, Jogador player) {
         
         case ESTADO_MENU_ITENS:
             if (tecla == 0x1B) { // S - baixo
-                cursor = (cursor + 1) % player.numero_itens; 
+                cursor = (cursor + 1) % player->numero_itens; 
             }
             else if (tecla == 0x1D) { // W - cima
-                cursor = (cursor + player.numero_itens - 1) % player.numero_itens; 
+                cursor = (cursor + player->numero_itens - 1) % player->numero_itens; 
             }
             else if (tecla == 0x1A) { // Z
                 estado_atual = ESTADO_MENU_PRINCIPAL;
@@ -205,6 +207,7 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
 
         case ESTADO_PROCESSANDO_TURNO:
             escrever_texto(11, 10, "       ");
+            
             break;
 
         case ESTADO_FIM_BATALHA:
@@ -363,10 +366,10 @@ void desenhar_pokemons_batalhas(Pokemon red, Pokemon desafiante){
     escrever_texto(14, 8, ":L");
     escrever_texto(4, 1, ":L");
 
-    snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
+    snprintf(tmp, sizeof(tmp), "%d", red.nivel);
     escrever_texto(16, 8, tmp);
 
-    snprintf(tmp, sizeof(tmp), "%d", red.nivel);
+    snprintf(tmp, sizeof(tmp), "%d", desafiante.nivel);
     escrever_texto(6, 1, tmp);
 
     snprintf(tmp, sizeof(tmp), "%d", red.hp_atual);
