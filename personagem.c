@@ -1,4 +1,6 @@
 #include "personagem.h"
+#include "pokemons.h"
+#include "batalha.h"
 #include "sprites/sprites.h"
 #include "perifericos.h"
 #include "sprites/fundos.h"
@@ -6,14 +8,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "pokemons.h"
-#include "batalha.h"
 //#include<stdio.h> // para o printf de debug
 
 int camera_x = 0;
 int camera_y = 0;
 
 Cenario *cenario_atual;
+int batalha_on;
 
 void start_player(Jogador *player, int dx, int dy, int dir) {
     // arredonda pro múltiplo de 16 mais próximo
@@ -152,10 +153,13 @@ void mover_jogador(Jogador *player, unsigned char tecla) {
 
         case GRAMA:
             //printf("GRAMA\n");
-            // sorteio de combate aleatório, se não:
-            player->destino_x = prox_x;
-            player->destino_y = prox_y;
-            player->movendo = 1;
+            if (rand() % 100 < 20) { // 20% de chance de batalha
+                batalha_on = 1;
+            } else {
+                player->destino_x = prox_x;
+                player->destino_y = prox_y;
+                player->movendo = 1;
+            }
             break;
 
         case PORTA:

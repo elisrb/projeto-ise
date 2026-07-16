@@ -53,11 +53,12 @@ typedef struct {
     int numero_itens;
 } Jogador;
 
-// --- VARIÁVEIS GLOBAIS DA CÂMERA E CENÁRIO ---
+// --- VARIÁVEIS GLOBAIS ---
 // Declaradas como extern para que o main.c também possa ler os valores delas
 extern int camera_x;
 extern int camera_y;
 extern Cenario *cenario_atual;
+extern int batalha_on;
 
 // --- ASSINATURAS DAS FUNÇÕES ---
 
