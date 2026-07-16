@@ -12,7 +12,33 @@
 #include "sprites/colisao.h"
 
 int main() {
+    // inicializa o jogador, pokemons e itens iniciais
     Jogador player;
+    Pokemon pokemon_inimigo;
+    Pokemon pokemon_red;
+    Pokemon pokemon_selvagem;
+    Item pocao = {"POTION", 1};
+
+    // o jogo começa na casa do jogador
+    cenario_atual = &casa2;
+    start_player(&player, 32, 32, BAIXO);
+    
+    // inicializa os pokemons em jogo: o do jogador, o do rival, e o selvagem
+    gerar_pokemon(&pokemon_red, PKMN_BULBASAUR, 0, &bulbasaur);
+
+    if(pokemon_red.id_especie == PKMN_BULBASAUR) {
+        gerar_pokemon(&pokemon_inimigo, PKMN_CHARMANDER, 5, &charmander);
+    } else if(pokemon_red.id_especie == PKMN_CHARMANDER) {
+        gerar_pokemon(&pokemon_inimigo, PKMN_SQUIRTLE, 5, &squirtle);
+    } else if(pokemon_red.id_especie == PKMN_SQUIRTLE) {
+        gerar_pokemon(&pokemon_inimigo, PKMN_BULBASAUR, 5, &bulbasaur);
+    }
+
+    gerar_pokemon(&pokemon_selvagem, PKMN_PIDGEY, 3, &pidgey);
+
+    // inicializa os itens do jogador
+    capturar_pokemon(&player, &pokemon_red);
+    pegar_item(&player, &pocao);
     
     // Inicializa os periféricos (placa ou simulador)
     if (hw_init() != 0) {
@@ -23,37 +49,67 @@ int main() {
     // Inicializa o sistema de double buffering da VGA
     inicializar_double_buffering();
 
-    // === CORREÇÃO CRÍTICA AQUI ===
-    // Inicializa o player com valores padrão (posição 0,0, olhando para baixo)
-    start_player(&player, 0, 0, 1); // Garante que numero_itens e numero_pokemons virem 0!
-
-    Pokemon pokemon_inimigo;
-    Pokemon pokemon_red;
-    Item pocao = {"POTION", 1}; // Dica: Use "POTION" em vez de "POCAO" para casar com o seu usar_item!
-    
-    gerar_pokemon(&pokemon_inimigo, 1, 5, &charmander);
-    gerar_pokemon(&pokemon_red, 0, 0, &bulbasaur);
-
-    // Agora é seguro capturar e dar itens, pois os contadores são zero!
-    capturar_pokemon(&player, &pokemon_red);
-    pegar_item(&player, &pocao);
-
-    printf("Teste de batalha iniciado.\n");
+    batalha_on = 0; // controla se está em batalha ou não
+    // 0 = não está em batalha, 1 = batalha vai começar, 2 = batalha em andamento, 3 = batalha terminou
 
     unsigned char tecla_anterior = 0;
+    unsigned char tecla_atual = 0;
 
+    // menu inicial
+    while (tecla_atual != 0x5A) { // 0x5A = Enter
+        clear();
+        completar_fundo_batalha();
+        imprimir_caixa_dialogo();
+        escrever_texto(1, 13, "Pressione Enter");
+        escrever_texto(1, 14, "para jogar");
+        tecla_atual = keyboard_input_filtrado();
+        inverter_buffers();
+        delay(16);
+    }
+
+    // loop do jogo
     while (1) {
-        unsigned char tecla_atual = keyboard_input();
+        clear();
+        tecla_atual = keyboard_input_filtrado();
 
-        if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
-            processar_input_batalha(tecla_atual, &pokemon_red, &pokemon_inimigo, &player);
+        switch (batalha_on) {
+            case 0: // não está em batalha: jogador andando
+                mover_jogador(&player, tecla_atual);
+                atualizar_camera(player.x, player.y);
+                atualizar_animacao_jogador(&player);
+                desenhar_cenario();
+                desenhar_jogador(camera_x, camera_y, &player);
+                break;
+
+            case 1: // batalha vai começar: inicializa o estado da batalha
+                estado_atual = ESTADO_INTRO_BATALHA;
+                opcao_selecionada = OPCAO_FIGHT;
+                cursor = 0;
+                batalha_on = 2;
+                break;
+
+            case 2: // batalha em andamento
+                if (tecla_atual != 0 && tecla_atual != tecla_anterior) {
+                    processar_input_batalha(tecla_atual, pokemon_red, player);
+                }
+
+                if (cenario_atual == &lab) {
+                    desenhar_batalha(pokemon_red, pokemon_inimigo, player);
+                } else {
+                    desenhar_batalha(pokemon_red, pokemon_selvagem, player);
+                }
+                break;
+
+            case 3: // batalha terminou
+                batalha_on = 0;
+                pokemon_inimigo.hp_atual = pokemon_inimigo.hp_max;
+                pokemon_selvagem.hp_atual = pokemon_selvagem.hp_max;
+                break;
         }
+
         tecla_anterior = tecla_atual;
 
-        clear();
-        desenhar_batalha(pokemon_red, pokemon_inimigo, player);
         inverter_buffers();
-
         delay(16);
     }
 
