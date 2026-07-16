@@ -43,7 +43,7 @@ void desenhar_setinha_menu_luta(int cursor_atual);
 void desenhar_setinha_menu_itens(int cursor_atual);
 void desenhar_setinha_menu_pkmn(int cursor_atual);
 
-
+void completar_fundo_batalha();
 void desenhar_tela_gameboy(const unsigned short tela[144][160]);
 void desenhar_pokemons_batalhas(Pokemon red,Pokemon desafiante);
 

@@ -19,9 +19,9 @@ int main() {
     Pokemon pokemon_selvagem;
     Item pocao = {"POTION", 1};
 
-    // o jogo começa na cidade, com o jogador posicionado no tile (36, 96)
-    cenario_atual = &cidade;
-    start_player(&player, 36, 96, BAIXO);
+    // o jogo começa na casa do jogador
+    cenario_atual = &casa2;
+    start_player(&player, 32, 32, BAIXO);
     
     // inicializa os pokemons em jogo: o do jogador, o do rival, e o selvagem
     gerar_pokemon(&pokemon_red, PKMN_BULBASAUR, 0, &bulbasaur);
@@ -55,7 +55,19 @@ int main() {
     unsigned char tecla_anterior = 0;
     unsigned char tecla_atual = 0;
 
-    clear();
+    // menu inicial
+    while (tecla_atual != 0x5A) { // 0x5A = Enter
+        clear();
+        completar_fundo_batalha();
+        imprimir_caixa_dialogo();
+        escrever_texto(1, 13, "Pressione Enter");
+        escrever_texto(1, 14, "para jogar");
+        tecla_atual = keyboard_input_filtrado();
+        inverter_buffers();
+        delay(16);
+    }
+
+    // loop do jogo
     while (1) {
         clear();
         tecla_atual = keyboard_input_filtrado();
