@@ -211,7 +211,7 @@ void desenhar_batalha(Pokemon red, Pokemon desafiante, Jogador player) {
             escrever_texto(11, 10, "       ");
             if (mensagem_turno != NULL) {
                 escrever_texto(1, 13, mensagem_turno);
-                delay(500);
+                delay(100);
             }
 
             break;
