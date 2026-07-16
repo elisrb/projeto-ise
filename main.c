@@ -71,7 +71,7 @@ int main() {
     clear();
     // loop do jogo
     while (1) {
-        clear(); // <--- ESSA LINHA PRECISA ESTAR AQUI para limpar o buffer antes de desenhar!
+    // <--- ESSA LINHA PRECISA ESTAR AQUI para limpar o buffer antes de desenhar!
 
         tecla_atual = keyboard_input_filtrado();
 

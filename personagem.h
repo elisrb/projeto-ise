@@ -6,7 +6,7 @@
 
 // --- CONFIGURAÇÕES DO JOGO E SPRITES ---
 #define SPRITE_TAMANHO 16
-#define VELOCIDADE     1
+#define VELOCIDADE     2
 #define TELA_LARGURA   320
 #define TELA_ALTURA    240
 
